@@ -7,12 +7,18 @@
   
   <title>Hexo</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta property="og:type" content="website">
+  <meta name="description" content="JVM内存结构主要有三大块：堆内存、方法区和栈。堆内存是JVM中最大的一块由年轻代和老年代组成，而年轻代内存又被分成三部分，Eden空间、From Survivor空间、To Survivor空间,默认情况下年轻代按照8:1:1的比例来分配；方法区存储类信息、常量、静态变量等数据，是线程共享的区域，为与Java堆区分，方法区还有一个别名Non-Heap(非堆)；栈又分为java虚拟机栈和本地方法">
+<meta property="og:type" content="article">
 <meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/index.html">
+<meta property="og:url" content="http://yoursite.com/2018/03/14/JVM/index.html">
 <meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="JVM内存结构主要有三大块：堆内存、方法区和栈。堆内存是JVM中最大的一块由年轻代和老年代组成，而年轻代内存又被分成三部分，Eden空间、From Survivor空间、To Survivor空间,默认情况下年轻代按照8:1:1的比例来分配；方法区存储类信息、常量、静态变量等数据，是线程共享的区域，为与Java堆区分，方法区还有一个别名Non-Heap(非堆)；栈又分为java虚拟机栈和本地方法">
+<meta property="og:image" content="http://www.ityouknow.com/assets/images/2017/jvm/jvm05.png">
+<meta property="og:updated_time" content="2018-03-14T10:41:04.000Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Hexo">
+<meta name="twitter:description" content="JVM内存结构主要有三大块：堆内存、方法区和栈。堆内存是JVM中最大的一块由年轻代和老年代组成，而年轻代内存又被分成三部分，Eden空间、From Survivor空间、To Survivor空间,默认情况下年轻代按照8:1:1的比例来分配；方法区存储类信息、常量、静态变量等数据，是线程共享的区域，为与Java堆区分，方法区还有一个别名Non-Heap(非堆)；栈又分为java虚拟机栈和本地方法">
+<meta name="twitter:image" content="http://www.ityouknow.com/assets/images/2017/jvm/jvm05.png">
   
     <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
@@ -59,9 +65,7 @@
   </div>
 </header>
       <div class="outer">
-        <section id="main">
-  
-    <article id="post-JVM" class="article article-type-post" itemscope itemprop="blogPost">
+        <section id="main"><article id="post-JVM" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2018/03/14/JVM/" class="article-date">
   <time datetime="2018-03-14T10:41:12.606Z" itemprop="datePublished">2018-03-14</time>
@@ -84,171 +88,19 @@
     </footer>
   </div>
   
-</article>
-
-
+    
+<nav id="article-nav">
   
-    <article id="post-Resid面试题点" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/03/14/Resid面试题点/" class="article-date">
-  <time datetime="2018-03-14T10:36:38.862Z" itemprop="datePublished">2018-03-14</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Redis面试问题以及答案</p>
-<h2 id="redis特性-，-以及和其他内存数据库的区别？"><a href="#redis特性-，-以及和其他内存数据库的区别？" class="headerlink" title="redis特性 ， 以及和其他内存数据库的区别？"></a>redis特性 ， 以及和其他内存数据库的区别？</h2><p>与Memcached相比</p>
-<ul>
-<li><p>redis本身是开源的内存key value 存储服务器。其中键值不仅仅可以是字符串，还可以是hash(散列)、set(集合)、zset(有序集合)、list(列表)，一起共五种数据结构。</p>
-</li>
-<li><p>Redis支持数据备份，即Master-slave模式的数据备份。通过哨兵的心跳检测，超过半数节点认为某节点挂掉了，那么该节点就挂掉了。</p>
-</li>
-<li><p>Redis支持两种持久化方案，RDB模式和AOF模式 </p>
-<ol>
-<li><p>Rdb：快照形式，定期把内存中当前时刻的数据保存到磁盘。Redis默认支持的持久化方案。</p>
-</li>
-<li><p>aof形式：append only file。把所有对redis数据库操作的命令，增删改操作的命令。保存到文件中。数据库恢复时把所有的命令执行一遍即可。</p>
-</li>
-</ol>
-</li>
-</ul>
-<h2 id="redis-cluste集群架构"><a href="#redis-cluste集群架构" class="headerlink" title="redis-cluste集群架构"></a>redis-cluste集群架构</h2><ul>
-<li>架构细节:</li>
-</ul>
-<pre><code>(1)所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽。
+  
+    <a href="/2018/03/14/Resid面试题点/" id="article-nav-older" class="article-nav-link-wrap">
+      <strong class="article-nav-caption">Älter</strong>
+      <div class="article-nav-title"></div>
+    </a>
+  
+</nav>
 
-
-(2)节点的fail是通过集群中超过半数的节点检测失效时才生效。
-
-
-(3)客户端与redis节点直连,不需要中间proxy层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可。
-
-
-(4)redis-cluster把所有的物理节点映射到[0-16383]slot上,cluster 负责维护node&lt;-&gt;slot&lt;-&gt;value。
-</code></pre><p>Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置一个 key-value 时，redis 先对 key 使用 crc16 算法算出一个结果，然后把结果对 16384 求余数，这样每个 key 都会对应一个编号在 0-16383 之间的哈希槽，redis 会根据节点数量大致均等的将哈希槽映射到不同的节点。</p>
-<h2 id="Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？"><a href="#Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？" class="headerlink" title="Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？"></a>Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？</h2><ul>
-<li><p>缓存穿透</p>
-<p>  （1）缓存穿透是指用户查询数据，在数据库没有，自然在缓存中也不会有。这样就导致用户在查询redis中查不到又去数据库再查询一遍。对于重复这样的请求就使得缓存失去意义。</p>
-</li>
-</ul>
-<pre><code>（2）解决方案1：如果查询返回的数据为空（不管是数据不存在还是系统故障），我们仍然对这个空结果进行缓存默认值。第二次到缓存中就能去到值了，而不用直接查询数据库。
-
-（3）解决方案2：使用布隆过滤器，对所有可能查询的参数以hash形式存储到足够大的bitmap中，一定不存的数据会被bitmap拦截掉，从而避免了对底层数据库系统的查询压力。
-</code></pre><ul>
-<li><p>缓存雪崩</p>
-<p>  （1）缓存雪崩是由于原有的缓存失效，新缓存未到。所有的请求都取查询数据库，而对数据库CPU和内存造成巨大的压力。严重的会造成数据库宕机。从而造成一系列连锁反应。</p>
-<p>  （2）解决方案1:给每一个缓存添加相应的缓存标记，用来记录缓存是否失效，如果缓存标记失效，则更新数据缓存。</p>
-</li>
-<li><p>使用redis实现分布式锁</p>
-<p>  加锁的场景，秒杀，全局递增ID，等等。Redis为单<br>  进程单线曾模式，采用队列模式将并发访问编程串行访问。且多客户端对Redis的连接并不存在竞争关系。其次Redis提供一些命令，如setnx,getset可以方便实现分布式锁机制。</p>
-<p>  redis实现分布式锁的算法，Redlock。</p>
-</li>
-</ul>
-<pre><code>1、第一次请求锁获取系统时间
-
-2、请求耗时是否超时，超时则结束在该master节点的锁请求。未超时则继续循环请求。
-
-3、判断是否上锁成功，未成功则睡眠后再次请求。     
-</code></pre><h2 id="Redis内存策略"><a href="#Redis内存策略" class="headerlink" title="Redis内存策略"></a>Redis内存策略</h2>
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/14/Resid面试题点/" data-id="cjeqyazas00006kmdnzw6fe6y" class="article-share-link">Teilen</a>
-      
-      
-    </footer>
-  </div>
   
 </article>
-
-
-  
-    <article id="post-my-first-blog" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/03/14/my-first-blog/" class="article-date">
-  <time datetime="2018-03-14T09:48:29.000Z" itemprop="datePublished">2018-03-14</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/14/my-first-blog/">my-first-blog</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/14/my-first-blog/" data-id="cjeqxhfjk0001tkmdh8jhyl9g" class="article-share-link">Teilen</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-hello-world" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2018/03/14/hello-world/" class="article-date">
-  <time datetime="2018-03-14T03:33:38.982Z" itemprop="datePublished">2018-03-14</time>
-</a>
-    
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2018/03/14/hello-world/">Hello World</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>Welcome to <a href="https://hexo.io/" target="_blank" rel="noopener">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/" target="_blank" rel="noopener">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html" target="_blank" rel="noopener">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues" target="_blank" rel="noopener">GitHub</a>.</p>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo new <span class="string">"My New Post"</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html" target="_blank" rel="noopener">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html" target="_blank" rel="noopener">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html" target="_blank" rel="noopener">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/deployment.html" target="_blank" rel="noopener">Deployment</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2018/03/14/hello-world/" data-id="cjeqxhfjd0000tkmdceyckdp0" class="article-share-link">Teilen</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-
 
 </section>
         
