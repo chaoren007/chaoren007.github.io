@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="微服务1," />
 
 
 
@@ -79,13 +79,18 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="阿超的个人博客">
-<meta property="og:url" content="http://chaoren007.github.io/index.html">
+<meta name="description" content="redis特性 ， 以及和其他内存数据库的区别？与Memcached相比  redis本身是开源的内存key value 存储服务器。其中键值不仅仅可以是字符串，还可以是hash(散列)、set(集合)、zset(有序集合)、list(列表)，一起共五种数据结构。  Redis支持数据备份，即Master-slave模式的数据备份。通过哨兵的心跳检测，超过半数节点认为某节点挂掉了，那么该节点就挂掉">
+<meta name="keywords" content="微服务1">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis常见面试问题">
+<meta property="og:url" content="http://chaoren007.github.io/2017/09/05/Resid面试题点/index.html">
 <meta property="og:site_name" content="阿超的个人博客">
+<meta property="og:description" content="redis特性 ， 以及和其他内存数据库的区别？与Memcached相比  redis本身是开源的内存key value 存储服务器。其中键值不仅仅可以是字符串，还可以是hash(散列)、set(集合)、zset(有序集合)、list(列表)，一起共五种数据结构。  Redis支持数据备份，即Master-slave模式的数据备份。通过哨兵的心跳检测，超过半数节点认为某节点挂掉了，那么该节点就挂掉">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-15T09:01:06.645Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="阿超的个人博客">
+<meta name="twitter:title" content="Redis常见面试问题">
+<meta name="twitter:description" content="redis特性 ， 以及和其他内存数据库的区别？与Memcached相比  redis本身是开源的内存key value 存储服务器。其中键值不仅仅可以是字符串，还可以是hash(散列)、set(集合)、zset(有序集合)、list(列表)，一起共五种数据结构。  Redis支持数据备份，即Master-slave模式的数据备份。通过哨兵的心跳检测，超过半数节点认为某节点挂掉了，那么该节点就挂掉">
 
 
 
@@ -115,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://chaoren007.github.io/"/>
+  <link rel="canonical" href="http://chaoren007.github.io/2017/09/05/Resid面试题点/"/>
 
 
 
 
 
-  <title>阿超的个人博客</title>
+  <title>Redis常见面试问题 | 阿超的个人博客</title>
   
 
 
@@ -140,8 +145,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -234,9 +238,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -266,9 +270,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/09/05/Resid面试题点/" itemprop="url">Redis常见面试问题</a></h1>
+          <h1 class="post-title" itemprop="name headline">Redis常见面试问题</h1>
         
 
         <div class="post-meta">
@@ -340,9 +342,7 @@
       
 
       
-        
-          
-            <h2 id="redis特性-，-以及和其他内存数据库的区别？"><a href="#redis特性-，-以及和其他内存数据库的区别？" class="headerlink" title="redis特性 ， 以及和其他内存数据库的区别？"></a>redis特性 ， 以及和其他内存数据库的区别？</h2><p>与Memcached相比</p>
+        <h2 id="redis特性-，-以及和其他内存数据库的区别？"><a href="#redis特性-，-以及和其他内存数据库的区别？" class="headerlink" title="redis特性 ， 以及和其他内存数据库的区别？"></a>redis特性 ， 以及和其他内存数据库的区别？</h2><p>与Memcached相比</p>
 <ul>
 <li><p>redis本身是开源的内存key value 存储服务器。其中键值不仅仅可以是字符串，还可以是hash(散列)、set(集合)、zset(有序集合)、list(列表)，一起共五种数据结构。</p>
 </li>
@@ -395,8 +395,6 @@
 
 3、判断是否上锁成功，未成功则睡眠后再次请求。     
 </code></pre><h2 id="Redis内存策略"><a href="#Redis内存策略" class="headerlink" title="Redis内存策略"></a>Redis内存策略</h2>
-          
-        
       
     </div>
     
@@ -411,14 +409,20 @@
 
     <footer class="post-footer">
       
+        <div class="post-tags">
+          
+            <a href="/tags/微服务1/" rel="tag"># 微服务1</a>
+          
+        </div>
+      
+
+      
+      
+      
 
       
 
       
-
-      
-      
-        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -428,10 +432,37 @@
   </article>
 
 
-    
-  </section>
 
-  
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_qzone">QQ空间</a>
+<a class="jiathis_button_tqq">腾讯微博</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
 
 
           </div>
@@ -439,6 +470,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -459,8 +494,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -524,6 +568,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#redis特性-，-以及和其他内存数据库的区别？"><span class="nav-number">1.</span> <span class="nav-text">redis特性 ， 以及和其他内存数据库的区别？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#redis-cluste集群架构"><span class="nav-number">2.</span> <span class="nav-text">redis-cluste集群架构</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？"><span class="nav-number">3.</span> <span class="nav-text">Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Redis内存策略"><span class="nav-number">4.</span> <span class="nav-text">Redis内存策略</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -657,6 +717,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
