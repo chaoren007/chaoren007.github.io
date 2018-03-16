@@ -79,19 +79,19 @@
 
 
 
-<meta name="description" content="1、Java程序具体执行的过程 首先Java源代码文件(.java后缀)会被Java编译器编译为字节码文件(.class后缀),然后由JVM中的类加载器加载各个类的字节码文件，加载完毕之后，交由JVM执行引擎执行。       运行时数据区通常包括这几个部分：   程序计数器(Program CounterRegister)  Java栈(VM Stack)  本地方法栈(Native Metho">
+<meta name="description" content="1、Java程序具体执行的过程 首先Java源代码文件(.java后缀)会被Java编译器编译为字节码文件(.class后缀),然后由JVM中的类加载器加载各个类的字节码文件，加载完毕之后，交由JVM执行引擎执行。      2、运行时数据区的内存结构程序计数器(Program CounterRegister) Java栈(VM Stack) 本地方法栈(Native Method Stack)">
 <meta name="keywords" content="JVM虚拟机">
 <meta property="og:type" content="article">
 <meta property="og:title" content="JVM内存模型">
 <meta property="og:url" content="http://chaoren007.github.io/2017/09/08/JVM虚拟机内存模型/index.html">
 <meta property="og:site_name" content="LiquorSea的个人博客">
-<meta property="og:description" content="1、Java程序具体执行的过程 首先Java源代码文件(.java后缀)会被Java编译器编译为字节码文件(.class后缀),然后由JVM中的类加载器加载各个类的字节码文件，加载完毕之后，交由JVM执行引擎执行。       运行时数据区通常包括这几个部分：   程序计数器(Program CounterRegister)  Java栈(VM Stack)  本地方法栈(Native Metho">
+<meta property="og:description" content="1、Java程序具体执行的过程 首先Java源代码文件(.java后缀)会被Java编译器编译为字节码文件(.class后缀),然后由JVM中的类加载器加载各个类的字节码文件，加载完毕之后，交由JVM执行引擎执行。      2、运行时数据区的内存结构程序计数器(Program CounterRegister) Java栈(VM Stack) 本地方法栈(Native Method Stack)">
 <meta property="og:locale" content="zh-Hans">
 <meta property="og:image" content="https://i.imgur.com/NhpSghl.png">
-<meta property="og:updated_time" content="2018-03-16T03:06:44.580Z">
+<meta property="og:updated_time" content="2018-03-16T03:30:34.100Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="JVM内存模型">
-<meta name="twitter:description" content="1、Java程序具体执行的过程 首先Java源代码文件(.java后缀)会被Java编译器编译为字节码文件(.class后缀),然后由JVM中的类加载器加载各个类的字节码文件，加载完毕之后，交由JVM执行引擎执行。       运行时数据区通常包括这几个部分：   程序计数器(Program CounterRegister)  Java栈(VM Stack)  本地方法栈(Native Metho">
+<meta name="twitter:description" content="1、Java程序具体执行的过程 首先Java源代码文件(.java后缀)会被Java编译器编译为字节码文件(.class后缀),然后由JVM中的类加载器加载各个类的字节码文件，加载完毕之后，交由JVM执行引擎执行。      2、运行时数据区的内存结构程序计数器(Program CounterRegister) Java栈(VM Stack) 本地方法栈(Native Method Stack)">
 <meta name="twitter:image" content="https://i.imgur.com/NhpSghl.png">
 
 
@@ -358,13 +358,26 @@
 <li>首先Java源代码文件(.java后缀)会被Java编译器编译为字节码文件(.class后缀),然后由JVM中的类加载器加载各个类的字节码文件，加载完毕之后，交由JVM执行引擎执行。   </li>
 </ul>
 <p><img src="https://i.imgur.com/NhpSghl.png" alt=""></p>
-<ul>
-<li><p>运行时数据区通常包括这几个部分：</p>
-<p>  程序计数器(Program CounterRegister)<br>  Java栈(VM Stack)<br>  本地方法栈(Native Method Stack)<br>  方法区(Method Area)<br>  堆(Heap)。</p>
-<p>  <strong>– 程序计数器</strong></p>
+<h2 id="2、运行时数据区的内存结构"><a href="#2、运行时数据区的内存结构" class="headerlink" title="2、运行时数据区的内存结构"></a>2、运行时数据区的内存结构</h2><pre><code>程序计数器(Program CounterRegister)
+Java栈(VM Stack)
+本地方法栈(Native Method Stack)
+方法区(Method Area)
+堆(Heap)。
+</code></pre><ul>
+<li><p><strong>程序计数器</strong></p>
 <p>  每个线程都有自己独立的计数器，为线程在CPU切换的时候做标记。存储数据所占内存空间大小不随程序的执行而改变。</p>
-<p>  <strong>– Java栈(<a href="http://chaoren007.github.io/2017/09/07/栈Java实现/">栈的java是实现</a>)</strong></p>
+</li>
+<li><p><strong>Java栈(<a href="http://chaoren007.github.io/2017/09/07/栈Java实现/">栈的java是实现</a>)</strong></p>
 <p>  存放一个个栈帧，栈帧对应被调用的方法。还包括局部变量表、<a href="http://chaoren007.github.io">操作数栈</a>、方法返回地址、指向运行时常量池的引用、附加信息。<br>  线程执行方法，建立一个对应的栈帧，并将建立的栈帧压栈。方法执行完毕后，便会将栈帧出栈。</p>
+</li>
+<li><p><strong>本地方法栈</strong></p>
+<p>同Java栈结构类似，但执行的是本地Native方法。</p>
+</li>
+<li><p><strong>堆</strong></p>
+<p>存储对象本身以及数组(数组的引用时存放在Java栈中)。堆的线程是被共享的，在JVM中只有一个堆。在堆内存中需要解决的一个最大问题是垃圾回收机制。</p>
+</li>
+<li><p><strong>方法区</strong></p>
+<p>  存储了每个类的信息(包括类的名称、方法信息、字段信息)、静态变量、常量以及编译器编译后的代码。</p>
 </li>
 </ul>
 
@@ -631,7 +644,7 @@ var jiathis_config={
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、Java程序具体执行的过程"><span class="nav-number">1.</span> <span class="nav-text">1、Java程序具体执行的过程</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#1、Java程序具体执行的过程"><span class="nav-number">1.</span> <span class="nav-text">1、Java程序具体执行的过程</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2、运行时数据区的内存结构"><span class="nav-number">2.</span> <span class="nav-text">2、运行时数据区的内存结构</span></a></li></ol></div>
             
 
           </div>
