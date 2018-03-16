@@ -369,24 +369,22 @@
 <li><p><strong>如何判断对象需要被回收</strong></p>
 <p><strong>（1）引用计数器</strong>（不用，不能解决循环调用问题）</p>
 <blockquote>
-<p> 给对象添加一个引用计数器，每当有一个地方引用它时，计数器加一。反之每当一个一个引用失效时，计数器减一。当计数器为0的时候，则表示对象不被引用。 </p>
+<p> 给对象添加一个引用计数器，每当有一个地方引用它时，计数器加一。反&gt;之每当一个一个引用失效时，计数器减一。当计数器为0的时候，则表示对<br>象不被引用。 </p>
 </blockquote>
 <p><strong>（2）可达性分析</strong></p>
 </li>
 </ul>
 <blockquote>
 <p>设立一系列的”GC ROOTS”对象为起始点，从这些起始点开始向下搜索，搜索走过的路径称为引用链，当一个对象没有任何引用链相连时，则证明此对象不可达。</p>
-<p> 在Java语言中,可作为GC Roots的对象包括下面几种 </p>
+<p> 在Java语言中,可作为GC Roots的对象包括下面几种 ：</p>
 </blockquote>
 <blockquote>
-<blockquote>
-<ul>
+<ol>
 <li>虚拟机栈(栈帧中的本地变量表)中引用的对象。</li>
 <li>方法区中类静态属性引用的对象。</li>
 <li>方法区中常量引用的对象。</li>
 <li>本地方法栈中JNI(即一般说的Native方法)引用的对象。</li>
-</ul>
-</blockquote>
+</ol>
 </blockquote>
 <ul>
 <li><strong>被GC判断为”垃圾”的对象一定会回收吗?</strong></li>
@@ -444,13 +442,13 @@ public static void main(String[] args) throws Throwable {
 </code></pre><p>} </p>
 </blockquote>
 <ul>
-<li>运行结果<blockquote>
+<li>运行结果</li>
+</ul>
+<blockquote>
 <pre><code>finalize mehtod executed!
 yes,i am still alive:)
 no,i am dead:(
 </code></pre></blockquote>
-</li>
-</ul>
 <blockquote>
 <p><strong>SAVE_HOOK对</strong>象的finalize()方法确实被GC收集器触发过,并且在被收集前成功逃脱了。另外一个值得注意的地方是,代码中有两段完全一样的代码片段,执行结果却是一次逃脱成功,一次失败,这是因为任何一个对象的finalize()方法都只会被系统自动调用一次,如果对象面临下一次回收,它的finalize()方法不会被再次执行,因此第二段代码的自救行动失败了。因为finalize()方法已经被虚拟机调用过,虚拟机都视为“没有必要执行”。(即意味着直接回收)</p>
 </blockquote>
