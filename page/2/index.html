@@ -352,7 +352,22 @@
       
         
           
-            
+            <h2 id="1、JVM栈内存溢出"><a href="#1、JVM栈内存溢出" class="headerlink" title="1、JVM栈内存溢出"></a>1、JVM栈内存溢出</h2><ul>
+<li><p>如果一个线程请求的栈深度大于虚拟机所允许的深度，则会抛出StackOverflowError异常。递归调用方法。</p>
+</li>
+<li><p>没有足够的空间去申请到合适的栈帧了，则会报出OutOfMemoryError异常。</p>
+</li>
+</ul>
+<h2 id="2、堆Java-Heap内存溢出"><a href="#2、堆Java-Heap内存溢出" class="headerlink" title="2、堆Java Heap内存溢出"></a>2、堆Java Heap内存溢出</h2><ul>
+<li><p>OOM(OutOfMemoryError)：指的是应用的内存已经不能满足正常使用了。通常是对结果的描述。</p>
+</li>
+<li><p>区别与内存的溢出的ML(Memory Leak):指的是应用在使用资源后没有及时释放，导致内存中存在不需要的资源，这是一种状态的描述。通常情况下，内存泄漏导致堆中的内存使用不断增加，从而引发内存溢出。</p>
+</li>
+</ul>
+<h2 id="3、GC回收机制"><a href="#3、GC回收机制" class="headerlink" title="3、GC回收机制"></a>3、GC回收机制</h2><ul>
+<li></li>
+</ul>
+
           
         
       
