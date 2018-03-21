@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/08/07/hexo站点配置/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/09/05/Resid面试题点/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/08/07/hexo站点配置/" itemprop="url">hexo站点配置</a></h1>
+                <a class="post-title-link" href="/2017/09/05/Resid面试题点/" itemprop="url">Redis常见面试问题</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-07T23:44:04+08:00">
-                2017-08-07
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-05T22:44:04+08:00">
+                2017-09-05
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/代码示例/" itemprop="url" rel="index">
-                    <span itemprop="name">代码示例</span>
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
                   </a>
                 </span>
 
@@ -352,174 +352,59 @@
       
         
           
-            <p><strong>- 站点的_config.yml</strong></p>
-<blockquote>
-<pre><code># Hexo Configuration Hexo配置文件
-
-## Docs: https://hexo.io/docs/configuration.html 
-
-## Source: https://github.com/hexojs/hexo/ 
-# 网站信息
-
-  #标题
-title: LiquorSea
-  #副标题
-subtitle: 记录学习的技能和遇到的问题
-  #网站描述
-description: 做自己爱做的事，爱自己在做的事！
-  #作者昵称
-author: xx
-  #网站语言，默认英语，设置简体汉语
-language: zh-Hans 
-  #时区，默认电脑时区
-  #timezone: 
-timezone: Asia/Shanghai
-  # 网址设置
-  #如果网站是放在子目录中，将url设置成&apos;http://yoursite.com/child&apos;，将root设置成&apos;/child/&apos;
-  ## If your site is put in a subdirectory, set url as &apos;http://yoursite.com/child&apos; and root as &apos;/child/&apos;
-  #网址
-url: http://zhangxuezhi.com
-  #网站根目录。如果网站是放在子目录中，将root设置成&apos;子目录名&apos;
-root: /
-  #文章链接地址格式 。即文章存放的目录。
-permalink: :year/:month/:day/:title/
-permalink_defaults:
+            <h2 id="redis特性-，-以及和其他内存数据库的区别？"><a href="#redis特性-，-以及和其他内存数据库的区别？" class="headerlink" title="redis特性 ， 以及和其他内存数据库的区别？"></a>redis特性 ， 以及和其他内存数据库的区别？</h2><p>与Memcached相比</p>
+<ul>
+<li><p>redis本身是开源的内存key value 存储服务器。其中键值不仅仅可以是字符串，还可以是hash(散列)、set(集合)、zset(有序集合)、list(列表)，一起共五种数据结构。</p>
+</li>
+<li><p>Redis支持数据备份，即Master-slave模式的数据备份。通过哨兵的心跳检测，超过半数节点认为某节点挂掉了，那么该节点就挂掉了。</p>
+</li>
+<li><p>Redis支持两种持久化方案，RDB模式和AOF模式 </p>
+<ol>
+<li><p>Rdb：快照形式，定期把内存中当前时刻的数据保存到磁盘。Redis默认支持的持久化方案。</p>
+</li>
+<li><p>aof形式：append only file。把所有对redis数据库操作的命令，增删改操作的命令。保存到文件中。数据库恢复时把所有的命令执行一遍即可。</p>
+</li>
+</ol>
+</li>
+</ul>
+<h2 id="redis-cluste集群架构"><a href="#redis-cluste集群架构" class="headerlink" title="redis-cluste集群架构"></a>redis-cluste集群架构</h2><ul>
+<li>架构细节:</li>
+</ul>
+<pre><code>(1)所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽。
 
 
-  # 目录设置
-  #资源文件夹，放在里面的文件会上传到github中
-source_dir: source
-  #公共文件夹，存放生成的静态文件
-public_dir: public
-  #标签文件夹，默认是tags。实际存放在source/tags中。
-tag_dir: tags
-rss_dir: rss
-  #档案文件夹，默认是archives。
-archive_dir: archives
-  #分类文件夹，默认是categories。实际存放在source/categories中。
-category_dir: categories
-  #代码文件夹，默认是downloads/code
-code_dir: downloads/code
-  #国际化文件夹，默认跟language相同
-i18n_dir: :lang
-  #不需要渲染的文件夹或文件夹,放在[]中
-  # 这两个文件是百度和google的站长验证文件，不能渲染，否则会改变内容，不能验证过
-skip_render: [baidu_verify_R9MZjdMkXT.html, google0f8fac7da2b48ef8.html, README.md, 模板.md]
+(2)节点的fail是通过集群中超过半数的节点检测失效时才生效。
 
 
-  # 写作选项
-  # 新建博文（帖子）的默认名称
-  # File name of new posts
-new_post_name: :title.md 
-  #默认布局模板是post，而不是draft和page
-default_layout: post
-  #是否将标题转换成标题形式（首字母大写）
-titlecase: false # Transform title into titlecase
-  #在新标签页面中打开网页
-external_link: true # Open external links in new tab
-filename_case: 0
-  #是否渲染草稿
-render_drafts: false
-  #启动 Asset 文件夹
-post_asset_folder: false
-  #把链接改为与根目录的相对位址
-relative_link: false
-  #显示未来的文章
-future: true
-  #代码块的设置
-highlight:
-enable: true          #  使用代码高亮
-line_number: true # 显示行号
-auto_detect: true  # 自动检测语言
-tab_replace:
+(3)客户端与redis节点直连,不需要中间proxy层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可。
 
 
-  # 分类和标签
-  # 默认分类
-default_category: uncategorized
-  #分类别名
-category_map:
-  #标签别名
-tag_map:
+(4)redis-cluster把所有的物理节点映射到[0-16383]slot上,cluster 负责维护node&lt;-&gt;slot&lt;-&gt;value。
+</code></pre><p>Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置一个 key-value 时，redis 先对 key 使用 crc16 算法算出一个结果，然后把结果对 16384 求余数，这样每个 key 都会对应一个编号在 0-16383 之间的哈希槽，redis 会根据节点数量大致均等的将哈希槽映射到不同的节点。</p>
+<h2 id="Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？"><a href="#Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？" class="headerlink" title="Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？"></a>Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？</h2><ul>
+<li><p>缓存穿透</p>
+<p>  （1）缓存穿透是指用户查询数据，在数据库没有，自然在缓存中也不会有。这样就导致用户在查询redis中查不到又去数据库再查询一遍。对于重复这样的请求就使得缓存失去意义。</p>
+</li>
+</ul>
+<pre><code>解决方案1：如果查询返回的数据为空（不管是数据不存在还是系统故障），我们仍然对这个空结果进行缓存默认值。第二次到缓存中就能去到值了，而不用直接查询数据库。
 
+解决方案2：使用布隆过滤器，对所有可能查询的参数以hash形式存储到足够大的bitmap中，一定不存的数据会被bitmap拦截掉，从而避免了对底层数据库系统的查询压力。
+</code></pre><ul>
+<li><p>缓存雪崩</p>
+<p>  （1）缓存雪崩是由于原有的缓存失效，新缓存未到。所有的请求都取查询数据库，而对数据库CPU和内存造成巨大的压力。严重的会造成数据库宕机。从而造成一系列连锁反应。</p>
+<p>  （2）解决方案1:给每一个缓存添加相应的缓存标记，用来记录缓存是否失效，如果缓存标记失效，则更新数据缓存。</p>
+</li>
+<li><p>使用redis实现分布式锁</p>
+<p>  加锁的场景，秒杀，全局递增ID，等等。Redis为单<br>  进程单线曾模式，采用队列模式将并发访问编程串行访问。且多客户端对Redis的连接并不存在竞争关系。其次Redis提供一些命令，如setnx,getset可以方便实现分布式锁机制。</p>
+<p>  redis实现分布式锁的算法，Redlock。</p>
+</li>
+</ul>
+<pre><code>1、第一次请求锁获取系统时间
 
-  # 日期和时间格式
-  #Hexo 使用 Moment.js 来解析和显示时间。
-  ## You can customize the date format as defined in
-  ## http://momentjs.com/docs/#/displaying/format/
-date_format: YYYY-MM-DD
-time_format: HH:mm:ss
+2、请求耗时是否超时，超时则结束在该master节点的锁请求。未超时则继续循环请求。
 
-
-  # 分页配置
-  # ---------------下面选项需要对应插件的支持---------------
-  # npm install hexo-generator-index --save
-  # npm install hexo-generator-archive --save
-  # npm install hexo-generator-category --save
-  # npm install hexo-generator-tag --save
-  ## Set per_page to 0 to disable pagination
-  #每页显示的文章量 
-  #per_page: 20
-  #首页的分页设置
-index_generator:
-per_page: 5
-  #归档页的分页设置
-archive_generator:
-per_page: 30
-yearly: true
-monthly: true
-  #标签页的分页设置
-tag_generator:
-per_page: 20
-
-  #分页路径，在public中可以看到
-  #pagination_dir: page
-
-
-  # Extensions 拓展插件配置
-  ## Plugins: https://hexo.io/plugins/
-plugins: 
-baidusitemap: 
-path: baidusitemap.xml
-
-
-  # 配置RSS
-feed: 
-  #feed 类型 (atom/rss2)
-type: atom   
-  #rss 路径
-path: atom.xml  
-  #在 rss 中最多生成的文章数(0显示所有)
-limit: 0
-
-
-
-  # 自定义站点内容搜索
-  # 需要先安装插件：
-  # npm install hexo-generator-search --save
-search:
-path: search.xml
-  # 如只想索引文章，可设置为post
-field: all 
-
-  # 主题配置
-  ## Themes: https://hexo.io/themes/
-  #theme: false #禁用主题
-  #theme: landscape
-theme: next 
-  # 部署配置
-  ## Docs: https://hexo.io/docs/deployment.html
-deploy:
-type: git
-  #repo: https://github.com/xuezhisd/xuezhisd.github.io.git
-repo: 
-  # 部署到github
-github: git@github.com:xuezhisd/xuezhisd.github.io.git,master
-  # 部署到coding.net。取消注释，可同时部署
-  #coding: git@git.coding.net:xuezhisd/blog.git,coding-pages
-  #type: baidu_url_submitter
-</code></pre></blockquote>
-
+3、判断是否上锁成功，未成功则睡眠后再次请求。     
+</code></pre><h2 id="Redis内存策略"><a href="#Redis内存策略" class="headerlink" title="Redis内存策略"></a>Redis内存策略</h2>
           
         
       
@@ -558,7 +443,7 @@ github: git@github.com:xuezhisd/xuezhisd.github.io.git,master
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -608,7 +493,7 @@ github: git@github.com:xuezhisd/xuezhisd.github.io.git,master
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -619,7 +504,7 @@ github: git@github.com:xuezhisd/xuezhisd.github.io.git,master
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -630,7 +515,7 @@ github: git@github.com:xuezhisd/xuezhisd.github.io.git,master
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
