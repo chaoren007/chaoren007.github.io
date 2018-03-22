@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="JVM虚拟机," />
 
 
 
@@ -79,13 +79,22 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="LiquorSea的个人博客">
-<meta property="og:url" content="http://chaoren007.github.io/page/3/index.html">
+<meta name="description" content="JVM 类加载机制详解JVM类加载机制分为五个部分  加载 验证 准备 解析 初始化  加载-  这个阶段会在内存中生成一个代表这个类的java.lang.Class对象，作为方法区这个类的各种数据的入口。注意这里不一定非得要从一个Class文件获取，这里既可以从ZIP包中读取（比如从jar包和war包中读取），也可以在运行时计算生成（动态代理），也可以由其它文件生成（比如将JSP文件转换成对应的">
+<meta name="keywords" content="JVM虚拟机">
+<meta property="og:type" content="article">
+<meta property="og:title" content="JVM的类加载机制">
+<meta property="og:url" content="http://chaoren007.github.io/2017/10/18/JVM的类加载机制/index.html">
 <meta property="og:site_name" content="LiquorSea的个人博客">
+<meta property="og:description" content="JVM 类加载机制详解JVM类加载机制分为五个部分  加载 验证 准备 解析 初始化  加载-  这个阶段会在内存中生成一个代表这个类的java.lang.Class对象，作为方法区这个类的各种数据的入口。注意这里不一定非得要从一个Class文件获取，这里既可以从ZIP包中读取（比如从jar包和war包中读取），也可以在运行时计算生成（动态代理），也可以由其它文件生成（比如将JSP文件转换成对应的">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:image" content="https://i.imgur.com/9t841hD.png">
+<meta property="og:image" content="https://i.imgur.com/rgM04DE.png">
+<meta property="og:image" content="https://i.imgur.com/on4Sw4X.png">
+<meta property="og:updated_time" content="2018-03-22T02:25:10.777Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="LiquorSea的个人博客">
+<meta name="twitter:title" content="JVM的类加载机制">
+<meta name="twitter:description" content="JVM 类加载机制详解JVM类加载机制分为五个部分  加载 验证 准备 解析 初始化  加载-  这个阶段会在内存中生成一个代表这个类的java.lang.Class对象，作为方法区这个类的各种数据的入口。注意这里不一定非得要从一个Class文件获取，这里既可以从ZIP包中读取（比如从jar包和war包中读取），也可以在运行时计算生成（动态代理），也可以由其它文件生成（比如将JSP文件转换成对应的">
+<meta name="twitter:image" content="https://i.imgur.com/9t841hD.png">
 
 
 
@@ -115,13 +124,13 @@
 
 
 
-  <link rel="canonical" href="http://chaoren007.github.io/page/3/"/>
+  <link rel="canonical" href="http://chaoren007.github.io/2017/10/18/JVM的类加载机制/"/>
 
 
 
 
 
-  <title>LiquorSea的个人博客</title>
+  <title>JVM的类加载机制 | LiquorSea的个人博客</title>
   
 
 
@@ -140,8 +149,7 @@
     
   
 
-  <div class="container sidebar-position-left 
-  page-home">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -244,9 +252,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-  <section id="posts" class="posts-expand">
+
+  <div id="posts" class="posts-expand">
     
-      
 
   
 
@@ -276,9 +284,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">
-                
-                <a class="post-title-link" href="/2017/10/18/JVM的类加载机制/" itemprop="url">JVM的类加载机制</a></h1>
+          <h1 class="post-title" itemprop="name headline">JVM的类加载机制</h1>
         
 
         <div class="post-meta">
@@ -350,9 +356,7 @@
       
 
       
-        
-          
-            <h1 id="JVM-类加载机制详解"><a href="#JVM-类加载机制详解" class="headerlink" title="JVM 类加载机制详解"></a>JVM 类加载机制详解</h1><p>JVM类加载机制分为五个部分</p>
+        <h1 id="JVM-类加载机制详解"><a href="#JVM-类加载机制详解" class="headerlink" title="JVM 类加载机制详解"></a>JVM 类加载机制详解</h1><p>JVM类加载机制分为五个部分</p>
 <ul>
 <li>加载</li>
 <li>验证</li>
@@ -452,8 +456,6 @@ false时，也不会触发类初始化，其实这个参数是告诉虚拟机，
 </blockquote>
 <p><img src="https://i.imgur.com/on4Sw4X.png" alt=""></p>
 
-          
-        
       
     </div>
     
@@ -468,14 +470,40 @@ false时，也不会触发类初始化，其实这个参数是告诉虚拟机，
 
     <footer class="post-footer">
       
-
+        <div class="post-tags">
+          
+            <a href="/tags/JVM虚拟机/" rel="tag"># JVM虚拟机</a>
+          
+        </div>
       
 
       
+      
+      
 
       
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/09/29/JVM内存溢出和GC回收机制/" rel="next" title="JVM内存溢出和GC回收机制">
+                <i class="fa fa-chevron-left"></i> JVM内存溢出和GC回收机制
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/06/Resid面试题点/" rel="prev" title="Redis常见面试问题">
+                Redis常见面试问题 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
       
-        <div class="post-eof"></div>
+
+      
       
     </footer>
   </div>
@@ -485,14 +513,37 @@ false时，也不会触发类初始化，其实这个参数是告诉虚拟机，
   </article>
 
 
-    
-  </section>
 
-  
-  <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/2/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><a class="page-number" href="/page/2/">2</a><span class="page-number current">3</span><a class="page-number" href="/page/4/">4</a><span class="space">&hellip;</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/4/"><i class="fa fa-angle-right"></i></a>
-  </nav>
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_qzone">QQ空间</a>
+<a class="jiathis_button_tqq">腾讯微博</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
 
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
 
 
           </div>
@@ -500,6 +551,10 @@ false时，也不会触发类初始化，其实这个参数是告诉虚拟机，
 
 
           
+
+  
+
+
 
         </div>
         
@@ -520,8 +575,17 @@ false时，也不会触发类初始化，其实这个参数是告诉虚拟机，
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -649,6 +713,22 @@ false时，也不会触发类初始化，其实这个参数是告诉虚拟机，
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#JVM-类加载机制详解"><span class="nav-number">1.</span> <span class="nav-text">JVM 类加载机制详解</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -782,6 +862,10 @@ false时，也不会触发类初始化，其实这个参数是告诉虚拟机，
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
