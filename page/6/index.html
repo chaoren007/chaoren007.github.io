@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/09/11/JVM虚拟机内存模型/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/09/12/栈Java实现/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/09/11/JVM虚拟机内存模型/" itemprop="url">JVM内存模型</a></h1>
+                <a class="post-title-link" href="/2017/09/12/栈Java实现/" itemprop="url">栈Java实现</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-11T23:00:04+08:00">
-                2017-09-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-12T22:44:04+08:00">
+                2017-09-12
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JVM虚拟机/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM虚拟机</span>
+                  <a href="/categories/代码示例/" itemprop="url" rel="index">
+                    <span itemprop="name">代码示例</span>
                   </a>
                 </span>
 
@@ -352,32 +352,242 @@
       
         
           
-            <h2 id="1、Java程序具体执行的过程"><a href="#1、Java程序具体执行的过程" class="headerlink" title="1、Java程序具体执行的过程"></a>1、Java程序具体执行的过程</h2><ul>
-<li>首先Java源代码文件(.java后缀)会被Java编译器编译为字节码文件(.class后缀),然后由JVM中的类加载器加载各个类的字节码文件，加载完毕之后，交由JVM执行引擎执行。   </li>
-</ul>
-<p><img src="https://i.imgur.com/NhpSghl.png" alt=""></p>
-<h2 id="2、运行时数据区的内存结构"><a href="#2、运行时数据区的内存结构" class="headerlink" title="2、运行时数据区的内存结构"></a>2、运行时数据区的内存结构</h2><pre><code>程序计数器(Program CounterRegister)
-Java栈(VM Stack)
-本地方法栈(Native Method Stack)
-方法区(Method Area)
-堆(Heap)。
-</code></pre><ul>
-<li><p><strong>程序计数器</strong></p>
-<p>  每个线程都有自己独立的计数器，为线程在CPU切换的时候做标记。存储数据所占内存空间大小不随程序的执行而改变。</p>
-</li>
-<li><p><strong>Java栈(<a href="http://chaoren007.github.io/2017/09/07/栈Java实现/">栈的java是实现</a>)</strong></p>
-<p>  存放一个个栈帧，栈帧对应被调用的方法。还包括局部变量表、<a href="http://chaoren007.github.io">操作数栈</a>、方法返回地址、指向运行时常量池的引用、附加信息。<br>  线程执行方法，建立一个对应的栈帧，并将建立的栈帧压栈。方法执行完毕后，便会将栈帧出栈。</p>
-</li>
-<li><p><strong>本地方法栈</strong></p>
-<p>同Java栈结构类似，但执行的是本地Native方法。</p>
-</li>
-<li><p><strong>堆</strong></p>
-<p>存储对象本身以及数组(数组的引用时存放在Java栈中)。堆的线程是被共享的，在JVM中只有一个堆。在堆内存中需要解决的一个最大问题是垃圾回收机制。</p>
-</li>
-<li><p><strong>方法区</strong></p>
-<p>  存储了每个类的信息(包括类的名称、方法信息、字段信息)、静态变量、常量以及编译器编译后的代码。</p>
-</li>
-</ul>
+            <h3 id="接口定义"><a href="#接口定义" class="headerlink" title="接口定义"></a>接口定义</h3><blockquote>
+<pre><code>package stack;
+public interface IStack&lt;E{
+  //1.判断空栈
+  public boolean isEmpty();
+
+  //2.判断栈满
+  public boolean isMax();
+
+  //3.入栈
+  public boolean push(E e);
+
+  //4.出栈
+  public E pop();
+
+  //5.返回栈顶
+  public E peek();
+
+  //6.返回元素在栈中的位置
+  public int getIndex(E e);
+
+  //7.返回栈的实际长度
+  public int size();
+
+  //8.返回栈容量
+  public int getStackSize();
+
+  //9.打印栈
+  public void display();
+ }
+</code></pre></blockquote>
+<h3 id="顺序栈"><a href="#顺序栈" class="headerlink" title="顺序栈"></a>顺序栈</h3><blockquote>
+<pre><code> package stack;
+
+ //我的栈数据结构
+public class MyStack&lt;Eimplements IStack&lt;E&gt;{
+private Object[] data = null; //数据域
+private int top = -1;           //栈顶指针初始化为-1
+private int maxSize = 0;      //栈最大容量
+
+//默认设置栈容量为10
+MyStack(){
+    this(10);
+}
+
+public MyStack(int initialSize){
+    if(initialSize &gt;= 0){
+        this.data = new Object[initialSize]; //初始化数组
+        this.maxSize = initialSize; //设置栈最大容量
+        this.top = -1;
+    }
+}
+
+public boolean isEmpty() {
+    return top == -1 ? true : false; //根据栈顶值判断,如果栈顶指针没有更新，则为空栈
+}
+
+public boolean isMax() {
+    return top &gt;= maxSize-1 ? true : false; //根据栈顶值判断，如果栈顶指针大于最大容量，则为满栈
+}
+
+public boolean push(E e) {
+    if(isMax()){
+        System.err.println(&quot;对不起,栈已满,无法入栈&quot;);
+        return false;
+    }
+    top ++; //更新栈顶下标
+    data[top] = e; //将元素添加到表中
+    //System.out.println(&quot;添加&quot; + e + &quot;成功&quot;);
+    return true;
+}
+
+@SuppressWarnings(&quot;unchecked&quot;)
+public E pop() {
+    if(isEmpty()){
+        System.err.println(&quot;对不起，目前是空栈，没有元素可以出栈&quot;);
+        return null;
+    }
+    E e = (E) data[top]; //返回当前的栈顶元素
+    top--; //更新栈顶
+    return e;
+}
+
+@SuppressWarnings(&quot;unchecked&quot;)
+public E peek() {
+    if(isEmpty()){
+        System.err.println(&quot;对不起，目前是空栈，无法返回栈顶元素&quot;);
+        return null;
+    }
+    return (E) data[top]; //返回栈顶元素
+}
+
+public int getIndex(E e) {
+    //根据栈顶和栈底(-1)遍历栈
+    while(top != -1){
+        //peek()返回当前栈顶
+        if(peek().equals(e)){
+            return top;
+        }
+        top --;
+    }     
+    return -1;
+}
+public int size() {
+    return this.top+1; //栈顶值+1，为栈元素的实际个数
+}
+
+public int getStackSize() {
+    return this.maxSize; //返回栈实际长度
+}
+
+public void display() {
+    //根据栈顶和栈底(-1)遍历
+    while(top != -1){
+        System.out.println(top);
+        top --;
+    }
+}
+
+public static void main(String[] args) {
+    MyStack&lt;Integerstack = new MyStack&lt;Integer&gt;();
+    //入栈
+    for (int i = 0; i &lt; 10; i++) {
+        stack.push(i); 
+    }
+    //出栈
+    //stack.pop();
+    //返回栈顶
+    //System.out.println(stack.peek());
+    //求长
+    //System.out.println(stack.size());
+
+    }
+
+}
+</code></pre></blockquote>
+<h3 id="链栈"><a href="#链栈" class="headerlink" title="链栈"></a>链栈</h3><blockquote>
+<p>   package stack;</p>
+<pre><code>//链栈是栈的链式存储结构，由多个节点组成。在链栈中的栈顶为头节点，节点由数据域和指针域组成
+//对链栈的操作都是间接的通过栈顶(头节点)完成。
+//顺序栈是一种特殊的顺序表
+//链栈是一种特殊链表
+public class LinkedStack{
+//定义节点类
+private class Node{
+    public Object data = null; //数据域
+    public Node next = null;   //指针域
+
+    //构造函数初始化
+    @SuppressWarnings(&quot;unused&quot;)
+    public Node(){}
+
+    public Node(Object data, Node next){
+        this.data = data;
+        this.next = next;
+    }
+
+    @Override
+    public String toString() {
+        return &quot;Node [data=&quot; + data + &quot;, next=&quot; +  next + &quot;]&quot;;
+    }
+}/*Node*/
+
+private Node top = null; //定义栈顶
+private int size = 0;    //定义栈节点数量
+
+//判断栈空
+public boolean isEmpty(){
+    return size == 0 ? true : false;
+}
+
+//压栈
+public boolean push(Object obj){
+    //更新头节点，让新节点指向原来的头节点
+    System.out.println(&quot;压栈成功:&quot; + obj + &quot;指向-&gt;&quot; + top);
+    top = new Node(obj, top); //压栈是将节点插入到栈顶之前。也就是更新头节点。改变指针指向
+    size ++; //栈长度++
+    return true;
+}
+
+//出栈
+public Object pop(){
+    if(isEmpty()){
+        System.out.println(&quot;对不起，目前是空栈，不能出栈&quot;);
+        return null;
+    }
+    Node temp = top;     //头节点引用
+    top = top.next;        //更新头节点
+    temp.next = null;     //释放引用,删除指针指向
+    size-- ;             //栈节点数量-1
+    return temp.data;   //出栈
+}
+
+//返回栈顶元素，但不弹出栈
+public Object peek(){
+    return this.top.data; //直接返回栈顶元素
+}
+
+//遍历栈并打印
+public void display(){
+    //从栈顶节点开始到栈底节点null遍历
+    while(top != null){
+        System.out.println(top.data);
+        top = top.next;
+    }
+}
+
+//返回元素在栈中的位置
+public int getIndex(Object obj){
+    int i = 0;
+    while(top != null){
+        if(peek().equals(obj)){
+            return i; 
+        }
+        top = top.next;
+        i++;
+    }
+    return -1;
+}
+
+//返回栈的长度
+public int getSize(){
+    return this.size;
+}
+
+public static void main(String[] args) {
+    LinkedStack stack = new LinkedStack();
+    for (int i = 0; i &lt; 10; i++) {
+        stack.push(i);
+    }
+//stack.display();
+    System.out.println(stack.getIndex(9));
+ }
+
+}
+</code></pre></blockquote>
 
           
         
@@ -417,7 +627,7 @@ Java栈(VM Stack)
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -467,7 +677,7 @@ Java栈(VM Stack)
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -478,7 +688,7 @@ Java栈(VM Stack)
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -489,7 +699,7 @@ Java栈(VM Stack)
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-count">5</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
