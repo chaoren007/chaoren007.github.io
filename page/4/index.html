@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/10/18/JVM的类加载机制/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/01/15/HashTable 、HashMap 、ConcurrentHashMap底层实现/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/10/18/JVM的类加载机制/" itemprop="url">JVM的类加载机制</a></h1>
+                <a class="post-title-link" href="/2018/01/15/HashTable 、HashMap 、ConcurrentHashMap底层实现/" itemprop="url">HashTable 、HashMap 、ConcurrentHashMap底层实现</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-18T20:22:04+08:00">
-                2017-10-18
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-15T23:00:04+08:00">
+                2018-01-15
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/JVM虚拟机/" itemprop="url" rel="index">
-                    <span itemprop="name">JVM虚拟机</span>
+                  <a href="/categories/集合/" itemprop="url" rel="index">
+                    <span itemprop="name">集合</span>
                   </a>
                 </span>
 
@@ -352,105 +352,77 @@
       
         
           
-            <h1 id="JVM-类加载机制详解"><a href="#JVM-类加载机制详解" class="headerlink" title="JVM 类加载机制详解"></a>JVM 类加载机制详解</h1><p>JVM类加载机制分为五个部分</p>
-<ul>
-<li>加载</li>
-<li>验证</li>
-<li>准备</li>
-<li>解析</li>
-<li>初始化</li>
+            <ul>
+<li><p>数组：连续空间，寻址迅速，增删需要大浮动移动。</p>
+</li>
+<li><p>链表：空间不连续，寻址困难，增删元素只需修改指针，所以查询慢、增删快。</p>
+</li>
+<li><p>哈希表：由数组和链表一起实现，数组寻址，链表增删。</p>
+</li>
 </ul>
-<p>加载<br>-</p>
-<blockquote>
-<p>这个阶段会在内存中生成一个代表这个类的java.lang.Class对象，作为方法区这个类的各种数据的入口。注意这里不一定非得要从一个Class文件获取，这里既可以从ZIP包中读取（比如从jar包和war包中读取），也可以在运行时计算生成（动态代理），也可以由其它文件生成（比如将JSP文件转换成对应的Class类）。</p>
-</blockquote>
-<p>验证<br>-</p>
-<blockquote>
-<p>这一阶段的主要目的是为了确保Class文件的字节流中包含的信息是否符合当前虚拟机的要求，并且不会危害虚拟机自身的安全。</p>
-</blockquote>
-<p>准备<br>-</p>
-<blockquote>
-<p>准备阶段是正式为类变量分配内存并设置类变量的初始值阶段，即在方法区中分配这些变量所使用的内存空间。注意这里所说的初始值概念。</p>
-</blockquote>
-<pre><code>比如一个类变量定义为：
-public static int v = 8080
-</code></pre><blockquote>
-<p>实际上变量v在准备阶段过后的初始值为0而不是8080，将v赋值为8080的putstatic指令是程序被编译后，存放于类构造器<client>方法之中，这里我们后面会解释。</client></p>
-</blockquote>
-<pre><code>但是注意如果声明为：
-public static final int v = 8080;
-</code></pre><blockquote>
-<p>在编译阶段会为v生成ConstantValue属性，在准备阶段虚拟机会根据ConstantValue属性将v赋值为8080。</p>
-</blockquote>
-<p>解析<br>-</p>
-<blockquote>
-<p>解析阶段是指虚拟机将常量池中的符号引用替换为直接引用的过程。符号引用就是class文件中的：</p>
-</blockquote>
-<blockquote>
+<h1 id="HashTable和HashMap"><a href="#HashTable和HashMap" class="headerlink" title="HashTable和HashMap"></a>HashTable和HashMap</h1><p>继承体系以及可供调用的公开方法<br>-</p>
 <ul>
-<li>CONSTANT_Class_info</li>
-<li>CONSTANT_Field_info</li>
-<li>CONSTANT_Method_info</li>
+<li><p>HashTable<br><img src="https://i.imgur.com/9DBZ42K.png" alt=""></p>
+</li>
+<li><p>HashMap<br><img src="https://i.imgur.com/kCz4kzS.png" alt=""></p>
+</li>
 </ul>
+<h2 id="应用层面异同点"><a href="#应用层面异同点" class="headerlink" title="应用层面异同点"></a>应用层面异同点</h2><blockquote>
+<p>1、HashMap是非线程安全的，HashTable是线程安全的。</p>
 </blockquote>
 <blockquote>
-<p>等类型的常量。</p>
+<p>2、HashMap的键和值都允许有null值存在，而HashTable则不行。</p>
 </blockquote>
 <blockquote>
-<p>符号引用和直接引用的概念：</p>
+<p>3、因为线程安全的问题，HashMap效率比HashTable的要高</p>
 </blockquote>
-<pre><code>符号引用与虚拟机实现的布局无关，引用的目标并不一定要已经加载到
-内存中。各种虚拟机实现的内存布局可以各不相同，但是它们能接受的
-符号引用必须是一致的，因为符号引用的字面量形式明确定义在Java
-虚拟机规范的Class文件格式中。
-直接引用可以是指向目标的指针，相对偏移量或是一个能间接定位到目
-标的句柄。如果有了直接引用，那引用的目标必定已经在内存中存在。
-</code></pre><p>初始化<br>-</p>
-<blockquote>
-<p>初始化阶段是类加载最后一个阶段，前面的类加载阶段之后，除了在加载阶段可以自定义类加载器以外，其它操作都由JVM主导。到了初始阶段，才开始真正执行类中定义的Java程序代码。</p>
-<p>初始化阶段是执行类构造器<client>方法的过程。<client>方法是由编译器自动收集类中的类变量的赋值操作和静态语句块中的语句合并而成的。虚拟机会保证<client>方法执行之前，父类的<client>方法已经执行完毕。p.s: 如果一个类中没有对静态变量赋值也没有静态语句块，那么编译器可以不为这个类生成<client>()方法。</client></client></client></client></client></p>
-<p>注意以下几种情况不会执行类初始化:</p>
-</blockquote>
-<pre><code>通过子类引用父类的静态字段，只会触发父类的初始化，而不会触发子
-类的初始化。
-定义对象数组，不会触发该类的初始化。
-常量在编译期间会存入调用类的常量池中，本质上并没有直接引用定义
-常量的类，不会触发定义常量所在的类。
-通过类名获取Class对象，不会触发类的初始化。
-通过Class.forName加载指定类时，如果指定参数initialize为
-false时，也不会触发类初始化，其实这个参数是告诉虚拟机，是否要
-对类进行初始化。
-通过ClassLoader默认的loadClass方法，也不会触发初始化动作。
-</code></pre><p>关于类加载器<br>-</p>
-<blockquote>
-<p>JVM虚拟机设计团队把加载动作放到JVM外部实现，以便让应用程序决定如何获取所需的类，JVM提供了3种类加载器：</p>
-</blockquote>
-<pre><code>启动类加载器(Bootstrap ClassLoader)：负责加载 JAVA_HOME
-\lib 目录中的，或通过-Xbootclasspath参数指定路径中的，且被
-虚拟机认可（按文件名识别，如rt.jar）的类。
-扩展类加载器(Extension ClassLoader)：负责加载 JAVA_HOME
-\lib\ext 目录中的，或通过java.ext.dirs系统变量指定路径中的
-类库。
-应用程序类加载器(Application ClassLoader)：负责加载用户路
-径（classpath）上的类库。
-</code></pre><blockquote>
-<p>JVM通过双亲委派模型进行类的加载，当然我们也可以通过继承java.lang.ClassLoader实现自定义的类加载器。<br><img src="https://i.imgur.com/9t841hD.png" alt=""></p>
-</blockquote>
-<blockquote>
-<p>当一个类加载器收到类加载任务，会先交给其父类加载器去完成，因此最<br>终加载任务都会传递到顶层的启动类加载器，只有当父类加载器无法完成<br>加载任务时，才会尝试执行加载任务。</p>
-<p>采用双亲委派的一个好处是比如加载位于rt.jar包中的类<br>java.lang.Object，不管是哪个加载器加载这个类，最终都是委托给顶<br>层的启动类加载器进行加载，这样就保证了使用不同的类加载器最终得到<br>的都是同样一个Object对象。</p>
-<p>在有些情境中可能会出现要我们自己来实现一个类加载器的需求，由于这里涉及的内容比较广泛，我想以后单独写一篇文章来讲述，不过这里我们还是稍微来看一下。我们直接看一下jdk中的ClassLoader的源码实现：</p>
-</blockquote>
-<p><img src="https://i.imgur.com/rgM04DE.png" alt=""></p>
-<ul>
-<li>首先通过Class c = findLoadedClass(name);判断一个类是否已经被加载过。</li>
-<li>如果没有被加载过执行if (c == null)中的程序，遵循双亲委派的模型，首先会通过递归从父加载器开始找，直到父类加载器是Bootstrap ClassLoader为止。</li>
-<li>最后根据resolve的值，判断这个class是否需要解析。</li>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><ul>
+<li><p>数据结构</p>
+<p>都是采用Hash表来存储键值对的。HashMap和HashTable都使用哈希表来存储键值对。都创建了一个继承自Map.Entry的私有的内部类Entry，每一个Entry对象表示存储在哈希表中的一个键值对。<br>Entry对象唯一表示一个键值对，有四个属性：</p>
+<p> -K key 键对象<br> -V value 值对象<br> -int hash 键对象的hash值<br> -Entry entry 指向链表中下一个Entry对象，可为null，表示当前<br> Entry对象在链表尾部</p>
+</li>
 </ul>
 <blockquote>
-<p>而上面的findClass()的实现如下，直接抛出一个异常，并且方法是protected，很明显这是留给我们开发者自己去实现的，这里我们以后我们单独写一篇文章来讲一下如何重写findClass方法来实现我们自己的类加载器。</p>
+<p>HashTable默认的初始大小为11，之后每次扩充为原来的2n+1。<br>HashMap默认的初始化大小为16，之后每次扩充为原来的2倍。还有我没列<br>出代码的一点，就是如果在创建时给定了初始化大小，那么HashTable会<br>直接使用你给定的大小，而HashMap会将其扩充为2的幂次方大小。</p>
 </blockquote>
-<p><img src="https://i.imgur.com/on4Sw4X.png" alt=""></p>
+<ul>
+<li><p>获取Hash桶的位置</p>
+<p>两种集合的加载因子都是0.75，这是在时间和空间的成本上折中。<br>HashTable中的数组(即Hash桶的个数)默认大小是11，每次扩充为原来的两倍加一(2n+1)。<br>HashMap中的数组默认大小为16，扩充为原来的两倍(2n)。</p>
+<p>如果给定的初始值，HashTable 直接使用该值，HashMap则自动扩充为2的n次方。</p>
+<p><img src="https://i.imgur.com/SNEzELY.png" alt=""></p>
+</li>
+</ul>
+<blockquote>
+<p>   HashTbale 是通过hash运算获取hash值，再与（&amp;）运算和取模运算（%）得到桶的位置，再与HashSeed异或（^）运算得到链表的位置。</p>
+<p>HashMap是在获取hashCode之后，做了一些位运算来减少hash冲突。<br>在取模的时候不再用除法，由于桶数量的特殊性，使用与（&amp;）运算代替了取模运算。</p>
+</blockquote>
+<h2 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h2><p><img src="https://i.imgur.com/TMqBs9x.png" alt=""></p>
+<p>可以看到，也比较简单，就是公开的方法比如get都使用了synchronized描述符。</p>
+<h1 id="ConcurrentHashMap实现原理"><a href="#ConcurrentHashMap实现原理" class="headerlink" title="ConcurrentHashMap实现原理"></a>ConcurrentHashMap实现原理</h1><blockquote>
+<p>一个ConcurrentHashMap由多个segment组成，每一个segment都包含了一个HashEntry数组的hashtable， 每一个segment包含了对自己的hashtable的操作，比如get，put，replace等操作，这些操作发生的时候，对自己的hashtable进行锁定。由于每一个segment写操作只锁定自己的hashtable，所以可能存在多个线程同时写的情况，性能无疑好于只有一个hashtable锁定的情况。</p>
+</blockquote>
+<ul>
+<li>总结与思考</li>
+</ul>
+<p>其实可以看出JDK1.8版本的ConcurrentHashMap的数据结构已经接近HashMap，相对而言，ConcurrentHashMap只是增加了同步的操作来控制并发，从JDK1.7版本的ReentrantLock+Segment+HashEntry，到JDK1.8版本中synchronized+CAS+HashEntry+红黑树,相对而言，总结如下思考：</p>
+<blockquote>
+<pre><code>JDK1.8的实现降低锁的粒度，JDK1.7版本锁的粒度是基于Segment的，包含多个HashEntry，而JDK1.8锁的粒度
+就是HashEntry（首节点）
+JDK1.8版本的数据结构变得更加简单，使得操作也更加清晰流畅，因为已经使用synchronized来进行同步，所以不
+需要分段锁的概念，也就不需要Segment这种数据结构了，由于粒度的降低，实现
+的复杂度也增加了
+JDK1.8使用红黑树来优化链表，基于长度很长的链表的遍历是一个很漫长的过程，而红黑树的
+遍历效率是很快的，代替一定阈值的链表，这样形成一个最佳拍档      
+JDK1.8为什么使用内置锁synchronized来代替重入锁ReentrantLock，我觉得有以下几
+
+因为粒度降低了，在相对而言的低粒度加锁方式，synchronized并不比ReentrantLock差，在
+粗粒度加锁中ReentrantLock可能通过Condition来控制各个低粒度的边界，更加的灵活，而在
+低粒度中，Condition的优势就没有了
+JVM的开发团队从来都没有放弃synchronized，而且基于JVM的synchronized优化空间更大，
+使用内嵌的关键字比使用API更加自然
+在大量的数据操作下，对于JVM的内存压力，基于API的ReentrantLock会开销更多的内存，虽
+然不是瓶颈，但是也是一个选择依据
+</code></pre></blockquote>
 
           
         
@@ -490,7 +462,7 @@ false时，也不会触发类初始化，其实这个参数是告诉虚拟机，
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -540,7 +512,7 @@ false时，也不会触发类初始化，其实这个参数是告诉虚拟机，
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -551,7 +523,7 @@ false时，也不会触发类初始化，其实这个参数是告诉虚拟机，
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -562,7 +534,7 @@ false时，也不会触发类初始化，其实这个参数是告诉虚拟机，
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

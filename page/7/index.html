@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/09/11/JVM虚拟机内存模型/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/10/18/JVM的类加载机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/09/11/JVM虚拟机内存模型/" itemprop="url">JVM内存模型</a></h1>
+                <a class="post-title-link" href="/2017/10/18/JVM的类加载机制/" itemprop="url">JVM的类加载机制</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-11T23:00:04+08:00">
-                2017-09-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-18T20:22:04+08:00">
+                2017-10-18
               </time>
             
 
@@ -352,32 +352,105 @@
       
         
           
-            <h2 id="1、Java程序具体执行的过程"><a href="#1、Java程序具体执行的过程" class="headerlink" title="1、Java程序具体执行的过程"></a>1、Java程序具体执行的过程</h2><ul>
-<li>首先Java源代码文件(.java后缀)会被Java编译器编译为字节码文件(.class后缀),然后由JVM中的类加载器加载各个类的字节码文件，加载完毕之后，交由JVM执行引擎执行。   </li>
+            <h1 id="JVM-类加载机制详解"><a href="#JVM-类加载机制详解" class="headerlink" title="JVM 类加载机制详解"></a>JVM 类加载机制详解</h1><p>JVM类加载机制分为五个部分</p>
+<ul>
+<li>加载</li>
+<li>验证</li>
+<li>准备</li>
+<li>解析</li>
+<li>初始化</li>
 </ul>
-<p><img src="https://i.imgur.com/NhpSghl.png" alt=""></p>
-<h2 id="2、运行时数据区的内存结构"><a href="#2、运行时数据区的内存结构" class="headerlink" title="2、运行时数据区的内存结构"></a>2、运行时数据区的内存结构</h2><pre><code>程序计数器(Program CounterRegister)
-Java栈(VM Stack)
-本地方法栈(Native Method Stack)
-方法区(Method Area)
-堆(Heap)。
-</code></pre><ul>
-<li><p><strong>程序计数器</strong></p>
-<p>  每个线程都有自己独立的计数器，为线程在CPU切换的时候做标记。存储数据所占内存空间大小不随程序的执行而改变。</p>
-</li>
-<li><p><strong>Java栈(<a href="http://chaoren007.github.io/2017/09/07/栈Java实现/">栈的java是实现</a>)</strong></p>
-<p>  存放一个个栈帧，栈帧对应被调用的方法。还包括局部变量表、<a href="http://chaoren007.github.io">操作数栈</a>、方法返回地址、指向运行时常量池的引用、附加信息。<br>  线程执行方法，建立一个对应的栈帧，并将建立的栈帧压栈。方法执行完毕后，便会将栈帧出栈。</p>
-</li>
-<li><p><strong>本地方法栈</strong></p>
-<p>同Java栈结构类似，但执行的是本地Native方法。</p>
-</li>
-<li><p><strong>堆</strong></p>
-<p>存储对象本身以及数组(数组的引用时存放在Java栈中)。堆的线程是被共享的，在JVM中只有一个堆。在堆内存中需要解决的一个最大问题是垃圾回收机制。</p>
-</li>
-<li><p><strong>方法区</strong></p>
-<p>  存储了每个类的信息(包括类的名称、方法信息、字段信息)、静态变量、常量以及编译器编译后的代码。</p>
-</li>
+<p>加载<br>-</p>
+<blockquote>
+<p>这个阶段会在内存中生成一个代表这个类的java.lang.Class对象，作为方法区这个类的各种数据的入口。注意这里不一定非得要从一个Class文件获取，这里既可以从ZIP包中读取（比如从jar包和war包中读取），也可以在运行时计算生成（动态代理），也可以由其它文件生成（比如将JSP文件转换成对应的Class类）。</p>
+</blockquote>
+<p>验证<br>-</p>
+<blockquote>
+<p>这一阶段的主要目的是为了确保Class文件的字节流中包含的信息是否符合当前虚拟机的要求，并且不会危害虚拟机自身的安全。</p>
+</blockquote>
+<p>准备<br>-</p>
+<blockquote>
+<p>准备阶段是正式为类变量分配内存并设置类变量的初始值阶段，即在方法区中分配这些变量所使用的内存空间。注意这里所说的初始值概念。</p>
+</blockquote>
+<pre><code>比如一个类变量定义为：
+public static int v = 8080
+</code></pre><blockquote>
+<p>实际上变量v在准备阶段过后的初始值为0而不是8080，将v赋值为8080的putstatic指令是程序被编译后，存放于类构造器<client>方法之中，这里我们后面会解释。</client></p>
+</blockquote>
+<pre><code>但是注意如果声明为：
+public static final int v = 8080;
+</code></pre><blockquote>
+<p>在编译阶段会为v生成ConstantValue属性，在准备阶段虚拟机会根据ConstantValue属性将v赋值为8080。</p>
+</blockquote>
+<p>解析<br>-</p>
+<blockquote>
+<p>解析阶段是指虚拟机将常量池中的符号引用替换为直接引用的过程。符号引用就是class文件中的：</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>CONSTANT_Class_info</li>
+<li>CONSTANT_Field_info</li>
+<li>CONSTANT_Method_info</li>
 </ul>
+</blockquote>
+<blockquote>
+<p>等类型的常量。</p>
+</blockquote>
+<blockquote>
+<p>符号引用和直接引用的概念：</p>
+</blockquote>
+<pre><code>符号引用与虚拟机实现的布局无关，引用的目标并不一定要已经加载到
+内存中。各种虚拟机实现的内存布局可以各不相同，但是它们能接受的
+符号引用必须是一致的，因为符号引用的字面量形式明确定义在Java
+虚拟机规范的Class文件格式中。
+直接引用可以是指向目标的指针，相对偏移量或是一个能间接定位到目
+标的句柄。如果有了直接引用，那引用的目标必定已经在内存中存在。
+</code></pre><p>初始化<br>-</p>
+<blockquote>
+<p>初始化阶段是类加载最后一个阶段，前面的类加载阶段之后，除了在加载阶段可以自定义类加载器以外，其它操作都由JVM主导。到了初始阶段，才开始真正执行类中定义的Java程序代码。</p>
+<p>初始化阶段是执行类构造器<client>方法的过程。<client>方法是由编译器自动收集类中的类变量的赋值操作和静态语句块中的语句合并而成的。虚拟机会保证<client>方法执行之前，父类的<client>方法已经执行完毕。p.s: 如果一个类中没有对静态变量赋值也没有静态语句块，那么编译器可以不为这个类生成<client>()方法。</client></client></client></client></client></p>
+<p>注意以下几种情况不会执行类初始化:</p>
+</blockquote>
+<pre><code>通过子类引用父类的静态字段，只会触发父类的初始化，而不会触发子
+类的初始化。
+定义对象数组，不会触发该类的初始化。
+常量在编译期间会存入调用类的常量池中，本质上并没有直接引用定义
+常量的类，不会触发定义常量所在的类。
+通过类名获取Class对象，不会触发类的初始化。
+通过Class.forName加载指定类时，如果指定参数initialize为
+false时，也不会触发类初始化，其实这个参数是告诉虚拟机，是否要
+对类进行初始化。
+通过ClassLoader默认的loadClass方法，也不会触发初始化动作。
+</code></pre><p>关于类加载器<br>-</p>
+<blockquote>
+<p>JVM虚拟机设计团队把加载动作放到JVM外部实现，以便让应用程序决定如何获取所需的类，JVM提供了3种类加载器：</p>
+</blockquote>
+<pre><code>启动类加载器(Bootstrap ClassLoader)：负责加载 JAVA_HOME
+\lib 目录中的，或通过-Xbootclasspath参数指定路径中的，且被
+虚拟机认可（按文件名识别，如rt.jar）的类。
+扩展类加载器(Extension ClassLoader)：负责加载 JAVA_HOME
+\lib\ext 目录中的，或通过java.ext.dirs系统变量指定路径中的
+类库。
+应用程序类加载器(Application ClassLoader)：负责加载用户路
+径（classpath）上的类库。
+</code></pre><blockquote>
+<p>JVM通过双亲委派模型进行类的加载，当然我们也可以通过继承java.lang.ClassLoader实现自定义的类加载器。<br><img src="https://i.imgur.com/9t841hD.png" alt=""></p>
+</blockquote>
+<blockquote>
+<p>当一个类加载器收到类加载任务，会先交给其父类加载器去完成，因此最<br>终加载任务都会传递到顶层的启动类加载器，只有当父类加载器无法完成<br>加载任务时，才会尝试执行加载任务。</p>
+<p>采用双亲委派的一个好处是比如加载位于rt.jar包中的类<br>java.lang.Object，不管是哪个加载器加载这个类，最终都是委托给顶<br>层的启动类加载器进行加载，这样就保证了使用不同的类加载器最终得到<br>的都是同样一个Object对象。</p>
+<p>在有些情境中可能会出现要我们自己来实现一个类加载器的需求，由于这里涉及的内容比较广泛，我想以后单独写一篇文章来讲述，不过这里我们还是稍微来看一下。我们直接看一下jdk中的ClassLoader的源码实现：</p>
+</blockquote>
+<p><img src="https://i.imgur.com/rgM04DE.png" alt=""></p>
+<ul>
+<li>首先通过Class c = findLoadedClass(name);判断一个类是否已经被加载过。</li>
+<li>如果没有被加载过执行if (c == null)中的程序，遵循双亲委派的模型，首先会通过递归从父加载器开始找，直到父类加载器是Bootstrap ClassLoader为止。</li>
+<li>最后根据resolve的值，判断这个class是否需要解析。</li>
+</ul>
+<blockquote>
+<p>而上面的findClass()的实现如下，直接抛出一个异常，并且方法是protected，很明显这是留给我们开发者自己去实现的，这里我们以后我们单独写一篇文章来讲一下如何重写findClass方法来实现我们自己的类加载器。</p>
+</blockquote>
+<p><img src="https://i.imgur.com/on4Sw4X.png" alt=""></p>
 
           
         
@@ -417,7 +490,7 @@ Java栈(VM Stack)
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -467,7 +540,7 @@ Java栈(VM Stack)
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -478,7 +551,7 @@ Java栈(VM Stack)
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -489,7 +562,7 @@ Java栈(VM Stack)
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">7</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
