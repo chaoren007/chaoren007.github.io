@@ -81,7 +81,7 @@
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="LiquorSea的个人博客">
-<meta property="og:url" content="http://chaoren007.github.io/categories/关键字/index.html">
+<meta property="og:url" content="http://chaoren007.github.io/page/12/index.html">
 <meta property="og:site_name" content="LiquorSea的个人博客">
 <meta property="og:locale" content="zh-Hans">
 <meta name="twitter:card" content="summary">
@@ -115,13 +115,13 @@
 
 
 
-  <link rel="canonical" href="http://chaoren007.github.io/categories/关键字/"/>
+  <link rel="canonical" href="http://chaoren007.github.io/page/12/"/>
 
 
 
 
 
-  <title>分类: 关键字 | LiquorSea的个人博客</title>
+  <title>LiquorSea的个人博客</title>
   
 
 
@@ -140,7 +140,8 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left 
+  page-home">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -243,55 +244,181 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-
-  
-  
-  
-  <div class="post-block category">
-
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>关键字<small>分类</small>
-        </h1>
-      </div>
-
+  <section id="posts" class="posts-expand">
+    
       
-        
+
+  
+
+  
+  
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/09/11/JVM虚拟机内存模型/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿超">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LiquorSea的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2017/12/29/多线程的Synchronized和Volatitle/" itemprop="url">
-              
-                <span itemprop="name">多线程的Synchronized和Volatitle</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/09/11/JVM虚拟机内存模型/" itemprop="url">JVM内存模型</a></h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-12-29T23:03:04+08:00"
-              content="2017-12-29" >
-          12-29
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-11T23:00:04+08:00">
+                2017-09-11
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/JVM虚拟机/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM虚拟机</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
 
       
-    </div>
+      
 
+      
+        
+          
+            <h2 id="1、Java程序具体执行的过程"><a href="#1、Java程序具体执行的过程" class="headerlink" title="1、Java程序具体执行的过程"></a>1、Java程序具体执行的过程</h2><ul>
+<li>首先Java源代码文件(.java后缀)会被Java编译器编译为字节码文件(.class后缀),然后由JVM中的类加载器加载各个类的字节码文件，加载完毕之后，交由JVM执行引擎执行。   </li>
+</ul>
+<p><img src="https://i.imgur.com/NhpSghl.png" alt=""></p>
+<h2 id="2、运行时数据区的内存结构"><a href="#2、运行时数据区的内存结构" class="headerlink" title="2、运行时数据区的内存结构"></a>2、运行时数据区的内存结构</h2><pre><code>程序计数器(Program CounterRegister)
+Java栈(VM Stack)
+本地方法栈(Native Method Stack)
+方法区(Method Area)
+堆(Heap)。
+</code></pre><ul>
+<li><p><strong>程序计数器</strong></p>
+<p>  每个线程都有自己独立的计数器，为线程在CPU切换的时候做标记。存储数据所占内存空间大小不随程序的执行而改变。</p>
+</li>
+<li><p><strong>Java栈(<a href="http://chaoren007.github.io/2017/09/07/栈Java实现/">栈的java是实现</a>)</strong></p>
+<p>  存放一个个栈帧，栈帧对应被调用的方法。还包括局部变量表、<a href="http://chaoren007.github.io">操作数栈</a>、方法返回地址、指向运行时常量池的引用、附加信息。<br>  线程执行方法，建立一个对应的栈帧，并将建立的栈帧压栈。方法执行完毕后，便会将栈帧出栈。</p>
+</li>
+<li><p><strong>本地方法栈</strong></p>
+<p>同Java栈结构类似，但执行的是本地Native方法。</p>
+</li>
+<li><p><strong>堆</strong></p>
+<p>存储对象本身以及数组(数组的引用时存放在Java栈中)。堆的线程是被共享的，在JVM中只有一个堆。在堆内存中需要解决的一个最大问题是垃圾回收机制。</p>
+</li>
+<li><p><strong>方法区</strong></p>
+<p>  存储了每个类的信息(包括类的名称、方法信息、字段信息)、静态变量、常量以及编译器编译后的代码。</p>
+</li>
+</ul>
+
+          
+        
+      
+    </div>
+    
+    
+    
+
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
   </div>
   
   
   
+  </article>
+
+
+    
+  </section>
 
   
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/11/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/11/">11</a><span class="page-number current">12</span><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/13/"><i class="fa fa-angle-right"></i></a>
+  </nav>
 
 
 

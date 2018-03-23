@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/08/07/hexo站点配置/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/09/12/栈Java实现/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/08/07/hexo站点配置/" itemprop="url">hexo站点配置</a></h1>
+                <a class="post-title-link" href="/2017/09/12/栈Java实现/" itemprop="url">栈Java实现</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-08-07T23:44:04+08:00">
-                2017-08-07
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-12T22:44:04+08:00">
+                2017-09-12
               </time>
             
 
@@ -352,172 +352,241 @@
       
         
           
-            <p><strong>- 站点的_config.yml</strong></p>
-<blockquote>
-<pre><code># Hexo Configuration Hexo配置文件
+            <h3 id="接口定义"><a href="#接口定义" class="headerlink" title="接口定义"></a>接口定义</h3><blockquote>
+<pre><code>package stack;
+public interface IStack&lt;E{
+  //1.判断空栈
+  public boolean isEmpty();
 
-## Docs: https://hexo.io/docs/configuration.html 
+  //2.判断栈满
+  public boolean isMax();
 
-## Source: https://github.com/hexojs/hexo/ 
-# 网站信息
+  //3.入栈
+  public boolean push(E e);
 
-  #标题
-title: LiquorSea
-  #副标题
-subtitle: 记录学习的技能和遇到的问题
-  #网站描述
-description: 做自己爱做的事，爱自己在做的事！
-  #作者昵称
-author: xx
-  #网站语言，默认英语，设置简体汉语
-language: zh-Hans 
-  #时区，默认电脑时区
-  #timezone: 
-timezone: Asia/Shanghai
-  # 网址设置
-  #如果网站是放在子目录中，将url设置成&apos;http://yoursite.com/child&apos;，将root设置成&apos;/child/&apos;
-  ## If your site is put in a subdirectory, set url as &apos;http://yoursite.com/child&apos; and root as &apos;/child/&apos;
-  #网址
-url: http://zhangxuezhi.com
-  #网站根目录。如果网站是放在子目录中，将root设置成&apos;子目录名&apos;
-root: /
-  #文章链接地址格式 。即文章存放的目录。
-permalink: :year/:month/:day/:title/
-permalink_defaults:
+  //4.出栈
+  public E pop();
 
+  //5.返回栈顶
+  public E peek();
 
-  # 目录设置
-  #资源文件夹，放在里面的文件会上传到github中
-source_dir: source
-  #公共文件夹，存放生成的静态文件
-public_dir: public
-  #标签文件夹，默认是tags。实际存放在source/tags中。
-tag_dir: tags
-rss_dir: rss
-  #档案文件夹，默认是archives。
-archive_dir: archives
-  #分类文件夹，默认是categories。实际存放在source/categories中。
-category_dir: categories
-  #代码文件夹，默认是downloads/code
-code_dir: downloads/code
-  #国际化文件夹，默认跟language相同
-i18n_dir: :lang
-  #不需要渲染的文件夹或文件夹,放在[]中
-  # 这两个文件是百度和google的站长验证文件，不能渲染，否则会改变内容，不能验证过
-skip_render: [baidu_verify_R9MZjdMkXT.html, google0f8fac7da2b48ef8.html, README.md, 模板.md]
+  //6.返回元素在栈中的位置
+  public int getIndex(E e);
 
+  //7.返回栈的实际长度
+  public int size();
 
-  # 写作选项
-  # 新建博文（帖子）的默认名称
-  # File name of new posts
-new_post_name: :title.md 
-  #默认布局模板是post，而不是draft和page
-default_layout: post
-  #是否将标题转换成标题形式（首字母大写）
-titlecase: false # Transform title into titlecase
-  #在新标签页面中打开网页
-external_link: true # Open external links in new tab
-filename_case: 0
-  #是否渲染草稿
-render_drafts: false
-  #启动 Asset 文件夹
-post_asset_folder: false
-  #把链接改为与根目录的相对位址
-relative_link: false
-  #显示未来的文章
-future: true
-  #代码块的设置
-highlight:
-enable: true          #  使用代码高亮
-line_number: true # 显示行号
-auto_detect: true  # 自动检测语言
-tab_replace:
+  //8.返回栈容量
+  public int getStackSize();
 
+  //9.打印栈
+  public void display();
+ }
+</code></pre></blockquote>
+<h3 id="顺序栈"><a href="#顺序栈" class="headerlink" title="顺序栈"></a>顺序栈</h3><blockquote>
+<pre><code> package stack;
 
-  # 分类和标签
-  # 默认分类
-default_category: uncategorized
-  #分类别名
-category_map:
-  #标签别名
-tag_map:
+ //我的栈数据结构
+public class MyStack&lt;Eimplements IStack&lt;E&gt;{
+private Object[] data = null; //数据域
+private int top = -1;           //栈顶指针初始化为-1
+private int maxSize = 0;      //栈最大容量
 
+//默认设置栈容量为10
+MyStack(){
+    this(10);
+}
 
-  # 日期和时间格式
-  #Hexo 使用 Moment.js 来解析和显示时间。
-  ## You can customize the date format as defined in
-  ## http://momentjs.com/docs/#/displaying/format/
-date_format: YYYY-MM-DD
-time_format: HH:mm:ss
+public MyStack(int initialSize){
+    if(initialSize &gt;= 0){
+        this.data = new Object[initialSize]; //初始化数组
+        this.maxSize = initialSize; //设置栈最大容量
+        this.top = -1;
+    }
+}
 
+public boolean isEmpty() {
+    return top == -1 ? true : false; //根据栈顶值判断,如果栈顶指针没有更新，则为空栈
+}
 
-  # 分页配置
-  # ---------------下面选项需要对应插件的支持---------------
-  # npm install hexo-generator-index --save
-  # npm install hexo-generator-archive --save
-  # npm install hexo-generator-category --save
-  # npm install hexo-generator-tag --save
-  ## Set per_page to 0 to disable pagination
-  #每页显示的文章量 
-  #per_page: 20
-  #首页的分页设置
-index_generator:
-per_page: 5
-  #归档页的分页设置
-archive_generator:
-per_page: 30
-yearly: true
-monthly: true
-  #标签页的分页设置
-tag_generator:
-per_page: 20
+public boolean isMax() {
+    return top &gt;= maxSize-1 ? true : false; //根据栈顶值判断，如果栈顶指针大于最大容量，则为满栈
+}
 
-  #分页路径，在public中可以看到
-  #pagination_dir: page
+public boolean push(E e) {
+    if(isMax()){
+        System.err.println(&quot;对不起,栈已满,无法入栈&quot;);
+        return false;
+    }
+    top ++; //更新栈顶下标
+    data[top] = e; //将元素添加到表中
+    //System.out.println(&quot;添加&quot; + e + &quot;成功&quot;);
+    return true;
+}
 
+@SuppressWarnings(&quot;unchecked&quot;)
+public E pop() {
+    if(isEmpty()){
+        System.err.println(&quot;对不起，目前是空栈，没有元素可以出栈&quot;);
+        return null;
+    }
+    E e = (E) data[top]; //返回当前的栈顶元素
+    top--; //更新栈顶
+    return e;
+}
 
-  # Extensions 拓展插件配置
-  ## Plugins: https://hexo.io/plugins/
-plugins: 
-baidusitemap: 
-path: baidusitemap.xml
+@SuppressWarnings(&quot;unchecked&quot;)
+public E peek() {
+    if(isEmpty()){
+        System.err.println(&quot;对不起，目前是空栈，无法返回栈顶元素&quot;);
+        return null;
+    }
+    return (E) data[top]; //返回栈顶元素
+}
 
+public int getIndex(E e) {
+    //根据栈顶和栈底(-1)遍历栈
+    while(top != -1){
+        //peek()返回当前栈顶
+        if(peek().equals(e)){
+            return top;
+        }
+        top --;
+    }     
+    return -1;
+}
+public int size() {
+    return this.top+1; //栈顶值+1，为栈元素的实际个数
+}
 
-  # 配置RSS
-feed: 
-  #feed 类型 (atom/rss2)
-type: atom   
-  #rss 路径
-path: atom.xml  
-  #在 rss 中最多生成的文章数(0显示所有)
-limit: 0
+public int getStackSize() {
+    return this.maxSize; //返回栈实际长度
+}
 
+public void display() {
+    //根据栈顶和栈底(-1)遍历
+    while(top != -1){
+        System.out.println(top);
+        top --;
+    }
+}
 
+public static void main(String[] args) {
+    MyStack&lt;Integerstack = new MyStack&lt;Integer&gt;();
+    //入栈
+    for (int i = 0; i &lt; 10; i++) {
+        stack.push(i); 
+    }
+    //出栈
+    //stack.pop();
+    //返回栈顶
+    //System.out.println(stack.peek());
+    //求长
+    //System.out.println(stack.size());
 
-  # 自定义站点内容搜索
-  # 需要先安装插件：
-  # npm install hexo-generator-search --save
-search:
-path: search.xml
-  # 如只想索引文章，可设置为post
-field: all 
+    }
 
-  # 主题配置
-  ## Themes: https://hexo.io/themes/
-  #theme: false #禁用主题
-  #theme: landscape
-theme: next 
-  # 部署配置
-  ## Docs: https://hexo.io/docs/deployment.html
-deploy:
-type: git
-  #repo: https://github.com/xuezhisd/xuezhisd.github.io.git
-repo: 
-  # 部署到github
-github: git@github.com:xuezhisd/xuezhisd.github.io.git,master
-  # 部署到coding.net。取消注释，可同时部署
-  #coding: git@git.coding.net:xuezhisd/blog.git,coding-pages
-  #type: baidu_url_submitter
+}
+</code></pre></blockquote>
+<h3 id="链栈"><a href="#链栈" class="headerlink" title="链栈"></a>链栈</h3><blockquote>
+<p>   package stack;</p>
+<pre><code>//链栈是栈的链式存储结构，由多个节点组成。在链栈中的栈顶为头节点，节点由数据域和指针域组成
+//对链栈的操作都是间接的通过栈顶(头节点)完成。
+//顺序栈是一种特殊的顺序表
+//链栈是一种特殊链表
+public class LinkedStack{
+//定义节点类
+private class Node{
+    public Object data = null; //数据域
+    public Node next = null;   //指针域
+
+    //构造函数初始化
+    @SuppressWarnings(&quot;unused&quot;)
+    public Node(){}
+
+    public Node(Object data, Node next){
+        this.data = data;
+        this.next = next;
+    }
+
+    @Override
+    public String toString() {
+        return &quot;Node [data=&quot; + data + &quot;, next=&quot; +  next + &quot;]&quot;;
+    }
+}/*Node*/
+
+private Node top = null; //定义栈顶
+private int size = 0;    //定义栈节点数量
+
+//判断栈空
+public boolean isEmpty(){
+    return size == 0 ? true : false;
+}
+
+//压栈
+public boolean push(Object obj){
+    //更新头节点，让新节点指向原来的头节点
+    System.out.println(&quot;压栈成功:&quot; + obj + &quot;指向-&gt;&quot; + top);
+    top = new Node(obj, top); //压栈是将节点插入到栈顶之前。也就是更新头节点。改变指针指向
+    size ++; //栈长度++
+    return true;
+}
+
+//出栈
+public Object pop(){
+    if(isEmpty()){
+        System.out.println(&quot;对不起，目前是空栈，不能出栈&quot;);
+        return null;
+    }
+    Node temp = top;     //头节点引用
+    top = top.next;        //更新头节点
+    temp.next = null;     //释放引用,删除指针指向
+    size-- ;             //栈节点数量-1
+    return temp.data;   //出栈
+}
+
+//返回栈顶元素，但不弹出栈
+public Object peek(){
+    return this.top.data; //直接返回栈顶元素
+}
+
+//遍历栈并打印
+public void display(){
+    //从栈顶节点开始到栈底节点null遍历
+    while(top != null){
+        System.out.println(top.data);
+        top = top.next;
+    }
+}
+
+//返回元素在栈中的位置
+public int getIndex(Object obj){
+    int i = 0;
+    while(top != null){
+        if(peek().equals(obj)){
+            return i; 
+        }
+        top = top.next;
+        i++;
+    }
+    return -1;
+}
+
+//返回栈的长度
+public int getSize(){
+    return this.size;
+}
+
+public static void main(String[] args) {
+    LinkedStack stack = new LinkedStack();
+    for (int i = 0; i &lt; 10; i++) {
+        stack.push(i);
+    }
+//stack.display();
+    System.out.println(stack.getIndex(9));
+ }
+
+}
 </code></pre></blockquote>
 
           
@@ -558,7 +627,7 @@ github: git@github.com:xuezhisd/xuezhisd.github.io.git,master
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span>
+    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -608,7 +677,7 @@ github: git@github.com:xuezhisd/xuezhisd.github.io.git,master
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">11</span>
+                  <span class="site-state-item-count">13</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>

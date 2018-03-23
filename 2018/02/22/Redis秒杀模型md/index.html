@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="Hexo, NexT" />
+  <meta name="keywords" content="代码示例," />
 
 
 
@@ -79,13 +79,18 @@
 
 
 
-<meta property="og:type" content="website">
-<meta property="og:title" content="LiquorSea的个人博客">
-<meta property="og:url" content="http://chaoren007.github.io/categories/关键字/index.html">
+<meta name="description" content="实现分布式锁流程： 加锁：redis中的Key-Value存在 释放锁: 删除key-value 阻塞模式：若发现已经上锁，在特定的时间轮询 异常情况：异步操作，加入锁超时机制，expire超时时间  注解定义 /** 锁在给定的等待时间内空闲，则获取锁成功 返回true， 否则 返回false   * @param subKey   * @param timeout 如果timeout=0,取不">
+<meta name="keywords" content="代码示例">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Redis分布式锁秒杀">
+<meta property="og:url" content="http://chaoren007.github.io/2018/02/22/Redis秒杀模型md/index.html">
 <meta property="og:site_name" content="LiquorSea的个人博客">
+<meta property="og:description" content="实现分布式锁流程： 加锁：redis中的Key-Value存在 释放锁: 删除key-value 阻塞模式：若发现已经上锁，在特定的时间轮询 异常情况：异步操作，加入锁超时机制，expire超时时间  注解定义 /** 锁在给定的等待时间内空闲，则获取锁成功 返回true， 否则 返回false   * @param subKey   * @param timeout 如果timeout=0,取不">
 <meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2018-03-23T03:09:11.122Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="LiquorSea的个人博客">
+<meta name="twitter:title" content="Redis分布式锁秒杀">
+<meta name="twitter:description" content="实现分布式锁流程： 加锁：redis中的Key-Value存在 释放锁: 删除key-value 阻塞模式：若发现已经上锁，在特定的时间轮询 异常情况：异步操作，加入锁超时机制，expire超时时间  注解定义 /** 锁在给定的等待时间内空闲，则获取锁成功 返回true， 否则 返回false   * @param subKey   * @param timeout 如果timeout=0,取不">
 
 
 
@@ -115,13 +120,13 @@
 
 
 
-  <link rel="canonical" href="http://chaoren007.github.io/categories/关键字/"/>
+  <link rel="canonical" href="http://chaoren007.github.io/2018/02/22/Redis秒杀模型md/"/>
 
 
 
 
 
-  <title>分类: 关键字 | LiquorSea的个人博客</title>
+  <title>Redis分布式锁秒杀 | LiquorSea的个人博客</title>
   
 
 
@@ -140,7 +145,7 @@
     
   
 
-  <div class="container sidebar-position-left ">
+  <div class="container sidebar-position-left page-post-detail">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -244,55 +249,321 @@
           <div id="content" class="content">
             
 
-  
-  
-  
-  <div class="post-block category">
+  <div id="posts" class="posts-expand">
+    
 
-    <div id="posts" class="posts-collapse">
-      <div class="collection-title">
-        <h1>关键字<small>分类</small>
-        </h1>
-      </div>
+  
 
-      
-        
+  
+  
+  
 
   <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
-    <header class="post-header">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/02/22/Redis秒杀模型md/">
 
-      <h2 class="post-title">
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="阿超">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/uploads/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="LiquorSea的个人博客">
+    </span>
+
+    
+      <header class="post-header">
+
         
-            <a class="post-title-link" href="/2017/12/29/多线程的Synchronized和Volatitle/" itemprop="url">
-              
-                <span itemprop="name">多线程的Synchronized和Volatitle</span>
-              
-            </a>
         
-      </h2>
+          <h1 class="post-title" itemprop="name headline">Redis分布式锁秒杀</h1>
+        
 
-      <div class="post-meta">
-        <time class="post-time" itemprop="dateCreated"
-              datetime="2017-12-29T23:03:04+08:00"
-              content="2017-12-29" >
-          12-29
-        </time>
-      </div>
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-22T23:11:04+08:00">
+                2018-02-22
+              </time>
+            
 
-    </header>
-  </article>
+            
 
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/代码示例/" itemprop="url" rel="index">
+                    <span itemprop="name">代码示例</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h1 id="实现分布式锁流程："><a href="#实现分布式锁流程：" class="headerlink" title="实现分布式锁流程："></a>实现分布式锁流程：</h1><blockquote>
+<pre><code>加锁：redis中的Key-Value存在
+释放锁: 删除key-value
+阻塞模式：若发现已经上锁，在特定的时间轮询
+异常情况：异步操作，加入锁超时机制，expire超时时间
+</code></pre></blockquote>
+<h2 id="注解定义"><a href="#注解定义" class="headerlink" title="注解定义"></a>注解定义</h2><blockquote>
+<pre><code>/** 锁在给定的等待时间内空闲，则获取锁成功 返回true， 否则
+返回false 
+ * @param subKey 
+ * @param timeout 如果timeout=0,取不到锁时,不等待,直接返回. 
+ * @param unit 
+ * @return 
+ */  
+public boolean tryLock(String subKey, 
+  long timeout, TimeUnit unit) {  
+  String key = LOCK_KEY + subKey;  
+  Jedis jedis = null;  
+  try {  
+    jedis = getConnection();  
+    if (jedis == null) {  
+    return Boolean.FALSE;  
+  }  
+  long nano = System.nanoTime();  
+  do{  
+    logger.debug(&quot;try lock key: &quot; + key);  
+    Long i = jedis.setnx(key, key);  
+    if (i == 1) {  
+    jedis.expire(key, EXPIRED_TIME);  
+    logger.debug(&quot;get lock, key: &quot; + key + &quot; ,
+    expire in &quot; + EXPIRED_TIME + &quot; seconds.&quot;);  
+    return Boolean.TRUE;  
+  } else { // 存在锁  
+    if (logger.isDebugEnabled()) {  
+      String desc = jedis.get(key);  
+      logger.debug(&quot;key: &quot; + key + &quot; locked by
+       another business：&quot; + desc);  
+    }  
+  }  
+  if (timeout == 0) { //取不到锁时,不等待,直接返回.  
+    break;  
+  }  
+  Thread.sleep(200);  
+  }while ((System.nanoTime() - nano) &lt; 
+   unit.toNanos(timeout));//取不到锁时等待,直到timeout  
+   return Boolean.FALSE;  
+  } catch (JedisConnectionException je) {  
+     logger.error(je.getMessage(), je);  
+     returnBorkenConnection(jedis);  
+  } catch (Exception e) {  
+     logger.error(e.getMessage(), e);  
+  } finally {  
+     returnConnection(jedis);  
+  }  
+ return Boolean.FALSE;  
+}  
+
+
+/** 
+ * 如果锁空闲立即返回   获取失败 一直等待 
+ * @param subKey 
+ */  
+public boolean lock(String subKey) {  
+  String key = LOCK_KEY + subKey;  
+  Jedis jedis = null;  
+  boolean isLock = false;  
+  try {  
+    jedis = getConnection();  
+    if (jedis == null) {  
+    return isLock;  
+  }  
+  while (true) {  
+   logger.debug(&quot;lock key: &quot; + key);  
+   Long i = jedis.setnx(key, key);  
+    if (i == 1) {  
+     jedis.expire(key, EXPIRED_TIME);  
+     logger.debug(&quot;get lock, key: &quot; + key + &quot; ,
+      expire in &quot; + EXPIRED_TIME + &quot; seconds.&quot;);  
+     isLock = true;  
+   } else {  
+    if (logger.isDebugEnabled()) {  
+      String desc = jedis.get(key);  
+      logger.debug(&quot;key: &quot; + key + &quot; locked by
+       another business：&quot; + desc);  
+    }  
+   isLock = false;  
+  }  
+ Thread.sleep(500);  
+  }  
+  } catch (JedisConnectionException je) {  
+    logger.error(je.getMessage(), je);  
+    returnBorkenConnection(jedis);  
+  } catch (Exception e) {  
+    logger.error(e.getMessage(), e);  
+  } finally {  
+     returnConnection(jedis);  
+  }  
+    return isLock;  
+ }  
+/** 
+ * 释放锁 
+ * @param subKey 
+ */  
+public void unLock(String subKey) {  
+  String key = LOCK_KEY + subKey;  
+  Jedis jedis = null;  
+  try {  
+    jedis = getConnection();  
+     if (jedis == null) {  
+     return;  
+  }  
+  jedis.del(key);  
+  logger.debug(&quot;release lock, keys :&quot; + key);  
+  } catch (JedisConnectionException je) {  
+     logger.error(je.getMessage(), je);  
+     returnBorkenConnection(jedis);  
+  } catch (Exception e) {  
+     logger.error(e.getMessage(), e);  
+  } finally {  
+     returnConnection(jedis);  
+  }  
+}  
+</code></pre></blockquote>
 
       
     </div>
+    
+    
+    
 
+    
+
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/代码示例/" rel="tag"># 代码示例</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2018/01/15/线程池/" rel="next" title="线程池">
+                <i class="fa fa-chevron-left"></i> 线程池
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2018/02/22/手写生产消费者/" rel="prev" title="手写生产消费者">
+                手写生产消费者 <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
   </div>
   
   
   
+  </article>
 
-  
 
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_qzone">QQ空间</a>
+<a class="jiathis_button_tqq">腾讯微博</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
 
 
           </div>
@@ -300,6 +571,10 @@
 
 
           
+
+  
+
+
 
         </div>
         
@@ -320,8 +595,17 @@
       
 
       
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
 
-      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
+      <section class="site-overview-wrap sidebar-panel">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -449,6 +733,22 @@
         </div>
       </section>
 
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#实现分布式锁流程："><span class="nav-number">1.</span> <span class="nav-text">实现分布式锁流程：</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#注解定义"><span class="nav-number">1.1.</span> <span class="nav-text">注解定义</span></a></li></ol></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
       
 
       
@@ -582,6 +882,10 @@
   
 
   
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
+
+
 
   
 
