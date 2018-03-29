@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="集合," />
+  <meta name="keywords" content="Hexo, NexT" />
 
 
 
@@ -79,23 +79,13 @@
 
 
 
-<meta name="description" content="数组：连续空间，寻址迅速，增删需要大浮动移动。  链表：空间不连续，寻址困难，增删元素只需修改指针，所以查询慢、增删快。  哈希表：由数组和链表一起实现，数组寻址，链表增删。   HashTable和HashMap继承体系以及可供调用的公开方法-  HashTable  HashMap   应用层面异同点 1、HashMap是非线程安全的，HashTable是线程安全的。   2、HashMap">
-<meta name="keywords" content="集合">
-<meta property="og:type" content="article">
-<meta property="og:title" content="HashTable 、HashMap 、ConcurrentHashMap底层实现">
-<meta property="og:url" content="http://chaoren007.github.io/2018/01/15/HashTable 、HashMap 、ConcurrentHashMap底层实现/index.html">
+<meta property="og:type" content="website">
+<meta property="og:title" content="LiquorSea的个人博客">
+<meta property="og:url" content="http://chaoren007.github.io/page/14/index.html">
 <meta property="og:site_name" content="LiquorSea的个人博客">
-<meta property="og:description" content="数组：连续空间，寻址迅速，增删需要大浮动移动。  链表：空间不连续，寻址困难，增删元素只需修改指针，所以查询慢、增删快。  哈希表：由数组和链表一起实现，数组寻址，链表增删。   HashTable和HashMap继承体系以及可供调用的公开方法-  HashTable  HashMap   应用层面异同点 1、HashMap是非线程安全的，HashTable是线程安全的。   2、HashMap">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:image" content="https://i.imgur.com/9DBZ42K.png">
-<meta property="og:image" content="https://i.imgur.com/kCz4kzS.png">
-<meta property="og:image" content="https://i.imgur.com/SNEzELY.png">
-<meta property="og:image" content="https://i.imgur.com/TMqBs9x.png">
-<meta property="og:updated_time" content="2018-03-22T09:04:50.162Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="HashTable 、HashMap 、ConcurrentHashMap底层实现">
-<meta name="twitter:description" content="数组：连续空间，寻址迅速，增删需要大浮动移动。  链表：空间不连续，寻址困难，增删元素只需修改指针，所以查询慢、增删快。  哈希表：由数组和链表一起实现，数组寻址，链表增删。   HashTable和HashMap继承体系以及可供调用的公开方法-  HashTable  HashMap   应用层面异同点 1、HashMap是非线程安全的，HashTable是线程安全的。   2、HashMap">
-<meta name="twitter:image" content="https://i.imgur.com/9DBZ42K.png">
+<meta name="twitter:title" content="LiquorSea的个人博客">
 
 
 
@@ -125,13 +115,13 @@
 
 
 
-  <link rel="canonical" href="http://chaoren007.github.io/2018/01/15/HashTable 、HashMap 、ConcurrentHashMap底层实现/"/>
+  <link rel="canonical" href="http://chaoren007.github.io/page/14/"/>
 
 
 
 
 
-  <title>HashTable 、HashMap 、ConcurrentHashMap底层实现 | LiquorSea的个人博客</title>
+  <title>LiquorSea的个人博客</title>
   
 
 
@@ -150,7 +140,8 @@
     
   
 
-  <div class="container sidebar-position-left page-post-detail">
+  <div class="container sidebar-position-left 
+  page-home">
     <div class="headband"></div>
 
     <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
@@ -253,9 +244,9 @@
         <div class="content-wrap">
           <div id="content" class="content">
             
-
-  <div id="posts" class="posts-expand">
+  <section id="posts" class="posts-expand">
     
+      
 
   
 
@@ -268,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/01/15/HashTable 、HashMap 、ConcurrentHashMap底层实现/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/09/11/JVM虚拟机内存模型/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -285,7 +276,9 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">HashTable 、HashMap 、ConcurrentHashMap底层实现</h1>
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/09/11/JVM虚拟机内存模型/" itemprop="url">JVM内存模型</a></h1>
         
 
         <div class="post-meta">
@@ -297,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-15T23:00:04+08:00">
-                2018-01-15
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-11T23:00:04+08:00">
+                2017-09-11
               </time>
             
 
@@ -320,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/集合/" itemprop="url" rel="index">
-                    <span itemprop="name">集合</span>
+                  <a href="/categories/JVM虚拟机/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM虚拟机</span>
                   </a>
                 </span>
 
@@ -357,78 +350,37 @@
       
 
       
-        <ul>
-<li><p>数组：连续空间，寻址迅速，增删需要大浮动移动。</p>
+        
+          
+            <h2 id="1、Java程序具体执行的过程"><a href="#1、Java程序具体执行的过程" class="headerlink" title="1、Java程序具体执行的过程"></a>1、Java程序具体执行的过程</h2><ul>
+<li>首先Java源代码文件(.java后缀)会被Java编译器编译为字节码文件(.class后缀),然后由JVM中的类加载器加载各个类的字节码文件，加载完毕之后，交由JVM执行引擎执行。   </li>
+</ul>
+<p><img src="https://i.imgur.com/NhpSghl.png" alt=""></p>
+<h2 id="2、运行时数据区的内存结构"><a href="#2、运行时数据区的内存结构" class="headerlink" title="2、运行时数据区的内存结构"></a>2、运行时数据区的内存结构</h2><pre><code>程序计数器(Program CounterRegister)
+Java栈(VM Stack)
+本地方法栈(Native Method Stack)
+方法区(Method Area)
+堆(Heap)。
+</code></pre><ul>
+<li><p><strong>程序计数器</strong></p>
+<p>  每个线程都有自己独立的计数器，为线程在CPU切换的时候做标记。存储数据所占内存空间大小不随程序的执行而改变。</p>
 </li>
-<li><p>链表：空间不连续，寻址困难，增删元素只需修改指针，所以查询慢、增删快。</p>
+<li><p><strong>Java栈(<a href="http://chaoren007.github.io/2017/09/07/栈Java实现/">栈的java是实现</a>)</strong></p>
+<p>  存放一个个栈帧，栈帧对应被调用的方法。还包括局部变量表、<a href="http://chaoren007.github.io">操作数栈</a>、方法返回地址、指向运行时常量池的引用、附加信息。<br>  线程执行方法，建立一个对应的栈帧，并将建立的栈帧压栈。方法执行完毕后，便会将栈帧出栈。</p>
 </li>
-<li><p>哈希表：由数组和链表一起实现，数组寻址，链表增删。</p>
+<li><p><strong>本地方法栈</strong></p>
+<p>同Java栈结构类似，但执行的是本地Native方法。</p>
+</li>
+<li><p><strong>堆</strong></p>
+<p>存储对象本身以及数组(数组的引用时存放在Java栈中)。堆的线程是被共享的，在JVM中只有一个堆。在堆内存中需要解决的一个最大问题是垃圾回收机制。</p>
+</li>
+<li><p><strong>方法区</strong></p>
+<p>  存储了每个类的信息(包括类的名称、方法信息、字段信息)、静态变量、常量以及编译器编译后的代码。</p>
 </li>
 </ul>
-<h1 id="HashTable和HashMap"><a href="#HashTable和HashMap" class="headerlink" title="HashTable和HashMap"></a>HashTable和HashMap</h1><p>继承体系以及可供调用的公开方法<br>-</p>
-<ul>
-<li><p>HashTable<br><img src="https://i.imgur.com/9DBZ42K.png" alt=""></p>
-</li>
-<li><p>HashMap<br><img src="https://i.imgur.com/kCz4kzS.png" alt=""></p>
-</li>
-</ul>
-<h2 id="应用层面异同点"><a href="#应用层面异同点" class="headerlink" title="应用层面异同点"></a>应用层面异同点</h2><blockquote>
-<p>1、HashMap是非线程安全的，HashTable是线程安全的。</p>
-</blockquote>
-<blockquote>
-<p>2、HashMap的键和值都允许有null值存在，而HashTable则不行。</p>
-</blockquote>
-<blockquote>
-<p>3、因为线程安全的问题，HashMap效率比HashTable的要高</p>
-</blockquote>
-<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><ul>
-<li><p>数据结构</p>
-<p>都是采用Hash表来存储键值对的。HashMap和HashTable都使用哈希表来存储键值对。都创建了一个继承自Map.Entry的私有的内部类Entry，每一个Entry对象表示存储在哈希表中的一个键值对。<br>Entry对象唯一表示一个键值对，有四个属性：</p>
-<p> -K key 键对象<br> -V value 值对象<br> -int hash 键对象的hash值<br> -Entry entry 指向链表中下一个Entry对象，可为null，表示当前<br> Entry对象在链表尾部</p>
-</li>
-</ul>
-<blockquote>
-<p>HashTable默认的初始大小为11，之后每次扩充为原来的2n+1。<br>HashMap默认的初始化大小为16，之后每次扩充为原来的2倍。还有我没列<br>出代码的一点，就是如果在创建时给定了初始化大小，那么HashTable会<br>直接使用你给定的大小，而HashMap会将其扩充为2的幂次方大小。</p>
-</blockquote>
-<ul>
-<li><p>获取Hash桶的位置</p>
-<p>两种集合的加载因子都是0.75，这是在时间和空间的成本上折中。<br>HashTable中的数组(即Hash桶的个数)默认大小是11，每次扩充为原来的两倍加一(2n+1)。<br>HashMap中的数组默认大小为16，扩充为原来的两倍(2n)。</p>
-<p>如果给定的初始值，HashTable 直接使用该值，HashMap则自动扩充为2的n次方。</p>
-<p><img src="https://i.imgur.com/SNEzELY.png" alt=""></p>
-</li>
-</ul>
-<blockquote>
-<p>   HashTbale 是通过hash运算获取hash值，再与（&amp;）运算和取模运算（%）得到桶的位置，再与HashSeed异或（^）运算得到链表的位置。</p>
-<p>HashMap是在获取hashCode之后，做了一些位运算来减少hash冲突。<br>在取模的时候不再用除法，由于桶数量的特殊性，使用与（&amp;）运算代替了取模运算。</p>
-</blockquote>
-<h2 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h2><p><img src="https://i.imgur.com/TMqBs9x.png" alt=""></p>
-<p>可以看到，也比较简单，就是公开的方法比如get都使用了synchronized描述符。</p>
-<h1 id="ConcurrentHashMap实现原理"><a href="#ConcurrentHashMap实现原理" class="headerlink" title="ConcurrentHashMap实现原理"></a>ConcurrentHashMap实现原理</h1><blockquote>
-<p>一个ConcurrentHashMap由多个segment组成，每一个segment都包含了一个HashEntry数组的hashtable， 每一个segment包含了对自己的hashtable的操作，比如get，put，replace等操作，这些操作发生的时候，对自己的hashtable进行锁定。由于每一个segment写操作只锁定自己的hashtable，所以可能存在多个线程同时写的情况，性能无疑好于只有一个hashtable锁定的情况。</p>
-</blockquote>
-<ul>
-<li>总结与思考</li>
-</ul>
-<p>其实可以看出JDK1.8版本的ConcurrentHashMap的数据结构已经接近HashMap，相对而言，ConcurrentHashMap只是增加了同步的操作来控制并发，从JDK1.7版本的ReentrantLock+Segment+HashEntry，到JDK1.8版本中synchronized+CAS+HashEntry+红黑树,相对而言，总结如下思考：</p>
-<blockquote>
-<pre><code>JDK1.8的实现降低锁的粒度，JDK1.7版本锁的粒度是基于Segment的，包含多个HashEntry，而JDK1.8锁的粒度
-就是HashEntry（首节点）
-JDK1.8版本的数据结构变得更加简单，使得操作也更加清晰流畅，因为已经使用synchronized来进行同步，所以不
-需要分段锁的概念，也就不需要Segment这种数据结构了，由于粒度的降低，实现
-的复杂度也增加了
-JDK1.8使用红黑树来优化链表，基于长度很长的链表的遍历是一个很漫长的过程，而红黑树的
-遍历效率是很快的，代替一定阈值的链表，这样形成一个最佳拍档      
-JDK1.8为什么使用内置锁synchronized来代替重入锁ReentrantLock，我觉得有以下几
 
-因为粒度降低了，在相对而言的低粒度加锁方式，synchronized并不比ReentrantLock差，在
-粗粒度加锁中ReentrantLock可能通过Condition来控制各个低粒度的边界，更加的灵活，而在
-低粒度中，Condition的优势就没有了
-JVM的开发团队从来都没有放弃synchronized，而且基于JVM的synchronized优化空间更大，
-使用内嵌的关键字比使用API更加自然
-在大量的数据操作下，对于JVM的内存压力，基于API的ReentrantLock会开销更多的内存，虽
-然不是瓶颈，但是也是一个选择依据
-</code></pre></blockquote>
-
+          
+        
       
     </div>
     
@@ -443,40 +395,14 @@ JVM的开发团队从来都没有放弃synchronized，而且基于JVM的synchron
 
     <footer class="post-footer">
       
-        <div class="post-tags">
-          
-            <a href="/tags/集合/" rel="tag"># 集合</a>
-          
-        </div>
+
+      
+
       
 
       
       
-      
-
-      
-        <div class="post-nav">
-          <div class="post-nav-next post-nav-item">
-            
-              <a href="/2018/01/15/线程池/" rel="next" title="线程池">
-                <i class="fa fa-chevron-left"></i> 线程池
-              </a>
-            
-          </div>
-
-          <span class="post-nav-divider"></span>
-
-          <div class="post-nav-prev post-nav-item">
-            
-              <a href="/2018/02/22/Redis秒杀模型md/" rel="prev" title="Redis分布式锁秒杀">
-                Redis分布式锁秒杀 <i class="fa fa-chevron-right"></i>
-              </a>
-            
-          </div>
-        </div>
-      
-
-      
+        <div class="post-eof"></div>
       
     </footer>
   </div>
@@ -486,37 +412,14 @@ JVM的开发团队从来都没有放弃synchronized，而且基于JVM的synchron
   </article>
 
 
+    
+  </section>
 
-    <div class="post-spread">
-      
-        <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-<span class="jiathis_txt">分享到：</span>
-<a class="jiathis_button_fav">收藏夹</a>
-<a class="jiathis_button_copy">复制网址</a>
-<a class="jiathis_button_email">邮件</a>
-<a class="jiathis_button_weixin">微信</a>
-<a class="jiathis_button_qzone">QQ空间</a>
-<a class="jiathis_button_tqq">腾讯微博</a>
-<a class="jiathis_button_douban">豆瓣</a>
-<a class="jiathis_button_share">一键分享</a>
+  
+  <nav class="pagination">
+    <a class="extend prev" rel="prev" href="/page/13/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/13/">13</a><span class="page-number current">14</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/15/"><i class="fa fa-angle-right"></i></a>
+  </nav>
 
-<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" >
-var jiathis_config={
-  data_track_clickback:true,
-  summary:"",
-  shortUrl:false,
-  hideMore:false
-}
-</script>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-      
-    </div>
-  </div>
 
 
           </div>
@@ -524,10 +427,6 @@ var jiathis_config={
 
 
           
-
-  
-
-
 
         </div>
         
@@ -548,17 +447,8 @@ var jiathis_config={
       
 
       
-        <ul class="sidebar-nav motion-element">
-          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
-            文章目录
-          </li>
-          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
-            站点概览
-          </li>
-        </ul>
-      
 
-      <section class="site-overview-wrap sidebar-panel">
+      <section class="site-overview-wrap sidebar-panel sidebar-panel-active">
         <div class="site-overview">
           <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
             
@@ -686,22 +576,6 @@ var jiathis_config={
         </div>
       </section>
 
-      
-      <!--noindex-->
-        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
-          <div class="post-toc">
-
-            
-              
-            
-
-            
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#HashTable和HashMap"><span class="nav-number">1.</span> <span class="nav-text">HashTable和HashMap</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#应用层面异同点"><span class="nav-number">1.1.</span> <span class="nav-text">应用层面异同点</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#实现原理"><span class="nav-number">1.2.</span> <span class="nav-text">实现原理</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#线程安全"><span class="nav-number">1.3.</span> <span class="nav-text">线程安全</span></a></li></ol></li><li class="nav-item nav-level-1"><a class="nav-link" href="#ConcurrentHashMap实现原理"><span class="nav-number">2.</span> <span class="nav-text">ConcurrentHashMap实现原理</span></a></li></ol></div>
-            
-
-          </div>
-        </section>
-      <!--/noindex-->
       
 
       
@@ -835,10 +709,6 @@ var jiathis_config={
   
 
   
-  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.4"></script>
-<script type="text/javascript" src="/js/src/post-details.js?v=5.1.4"></script>
-
-
 
   
 

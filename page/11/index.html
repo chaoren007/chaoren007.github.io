@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/09/12/栈Java实现/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/10/18/JVM的类加载机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/09/12/栈Java实现/" itemprop="url">栈Java实现</a></h1>
+                <a class="post-title-link" href="/2017/10/18/JVM的类加载机制/" itemprop="url">JVM的类加载机制</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-12T22:44:04+08:00">
-                2017-09-12
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-18T20:22:04+08:00">
+                2017-10-18
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/代码示例/" itemprop="url" rel="index">
-                    <span itemprop="name">代码示例</span>
+                  <a href="/categories/JVM虚拟机/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM虚拟机</span>
                   </a>
                 </span>
 
@@ -352,242 +352,105 @@
       
         
           
-            <h3 id="接口定义"><a href="#接口定义" class="headerlink" title="接口定义"></a>接口定义</h3><blockquote>
-<pre><code>package stack;
-public interface IStack&lt;E{
-  //1.判断空栈
-  public boolean isEmpty();
-
-  //2.判断栈满
-  public boolean isMax();
-
-  //3.入栈
-  public boolean push(E e);
-
-  //4.出栈
-  public E pop();
-
-  //5.返回栈顶
-  public E peek();
-
-  //6.返回元素在栈中的位置
-  public int getIndex(E e);
-
-  //7.返回栈的实际长度
-  public int size();
-
-  //8.返回栈容量
-  public int getStackSize();
-
-  //9.打印栈
-  public void display();
- }
-</code></pre></blockquote>
-<h3 id="顺序栈"><a href="#顺序栈" class="headerlink" title="顺序栈"></a>顺序栈</h3><blockquote>
-<pre><code> package stack;
-
- //我的栈数据结构
-public class MyStack&lt;Eimplements IStack&lt;E&gt;{
-private Object[] data = null; //数据域
-private int top = -1;           //栈顶指针初始化为-1
-private int maxSize = 0;      //栈最大容量
-
-//默认设置栈容量为10
-MyStack(){
-    this(10);
-}
-
-public MyStack(int initialSize){
-    if(initialSize &gt;= 0){
-        this.data = new Object[initialSize]; //初始化数组
-        this.maxSize = initialSize; //设置栈最大容量
-        this.top = -1;
-    }
-}
-
-public boolean isEmpty() {
-    return top == -1 ? true : false; //根据栈顶值判断,如果栈顶指针没有更新，则为空栈
-}
-
-public boolean isMax() {
-    return top &gt;= maxSize-1 ? true : false; //根据栈顶值判断，如果栈顶指针大于最大容量，则为满栈
-}
-
-public boolean push(E e) {
-    if(isMax()){
-        System.err.println(&quot;对不起,栈已满,无法入栈&quot;);
-        return false;
-    }
-    top ++; //更新栈顶下标
-    data[top] = e; //将元素添加到表中
-    //System.out.println(&quot;添加&quot; + e + &quot;成功&quot;);
-    return true;
-}
-
-@SuppressWarnings(&quot;unchecked&quot;)
-public E pop() {
-    if(isEmpty()){
-        System.err.println(&quot;对不起，目前是空栈，没有元素可以出栈&quot;);
-        return null;
-    }
-    E e = (E) data[top]; //返回当前的栈顶元素
-    top--; //更新栈顶
-    return e;
-}
-
-@SuppressWarnings(&quot;unchecked&quot;)
-public E peek() {
-    if(isEmpty()){
-        System.err.println(&quot;对不起，目前是空栈，无法返回栈顶元素&quot;);
-        return null;
-    }
-    return (E) data[top]; //返回栈顶元素
-}
-
-public int getIndex(E e) {
-    //根据栈顶和栈底(-1)遍历栈
-    while(top != -1){
-        //peek()返回当前栈顶
-        if(peek().equals(e)){
-            return top;
-        }
-        top --;
-    }     
-    return -1;
-}
-public int size() {
-    return this.top+1; //栈顶值+1，为栈元素的实际个数
-}
-
-public int getStackSize() {
-    return this.maxSize; //返回栈实际长度
-}
-
-public void display() {
-    //根据栈顶和栈底(-1)遍历
-    while(top != -1){
-        System.out.println(top);
-        top --;
-    }
-}
-
-public static void main(String[] args) {
-    MyStack&lt;Integerstack = new MyStack&lt;Integer&gt;();
-    //入栈
-    for (int i = 0; i &lt; 10; i++) {
-        stack.push(i); 
-    }
-    //出栈
-    //stack.pop();
-    //返回栈顶
-    //System.out.println(stack.peek());
-    //求长
-    //System.out.println(stack.size());
-
-    }
-
-}
-</code></pre></blockquote>
-<h3 id="链栈"><a href="#链栈" class="headerlink" title="链栈"></a>链栈</h3><blockquote>
-<p>   package stack;</p>
-<pre><code>//链栈是栈的链式存储结构，由多个节点组成。在链栈中的栈顶为头节点，节点由数据域和指针域组成
-//对链栈的操作都是间接的通过栈顶(头节点)完成。
-//顺序栈是一种特殊的顺序表
-//链栈是一种特殊链表
-public class LinkedStack{
-//定义节点类
-private class Node{
-    public Object data = null; //数据域
-    public Node next = null;   //指针域
-
-    //构造函数初始化
-    @SuppressWarnings(&quot;unused&quot;)
-    public Node(){}
-
-    public Node(Object data, Node next){
-        this.data = data;
-        this.next = next;
-    }
-
-    @Override
-    public String toString() {
-        return &quot;Node [data=&quot; + data + &quot;, next=&quot; +  next + &quot;]&quot;;
-    }
-}/*Node*/
-
-private Node top = null; //定义栈顶
-private int size = 0;    //定义栈节点数量
-
-//判断栈空
-public boolean isEmpty(){
-    return size == 0 ? true : false;
-}
-
-//压栈
-public boolean push(Object obj){
-    //更新头节点，让新节点指向原来的头节点
-    System.out.println(&quot;压栈成功:&quot; + obj + &quot;指向-&gt;&quot; + top);
-    top = new Node(obj, top); //压栈是将节点插入到栈顶之前。也就是更新头节点。改变指针指向
-    size ++; //栈长度++
-    return true;
-}
-
-//出栈
-public Object pop(){
-    if(isEmpty()){
-        System.out.println(&quot;对不起，目前是空栈，不能出栈&quot;);
-        return null;
-    }
-    Node temp = top;     //头节点引用
-    top = top.next;        //更新头节点
-    temp.next = null;     //释放引用,删除指针指向
-    size-- ;             //栈节点数量-1
-    return temp.data;   //出栈
-}
-
-//返回栈顶元素，但不弹出栈
-public Object peek(){
-    return this.top.data; //直接返回栈顶元素
-}
-
-//遍历栈并打印
-public void display(){
-    //从栈顶节点开始到栈底节点null遍历
-    while(top != null){
-        System.out.println(top.data);
-        top = top.next;
-    }
-}
-
-//返回元素在栈中的位置
-public int getIndex(Object obj){
-    int i = 0;
-    while(top != null){
-        if(peek().equals(obj)){
-            return i; 
-        }
-        top = top.next;
-        i++;
-    }
-    return -1;
-}
-
-//返回栈的长度
-public int getSize(){
-    return this.size;
-}
-
-public static void main(String[] args) {
-    LinkedStack stack = new LinkedStack();
-    for (int i = 0; i &lt; 10; i++) {
-        stack.push(i);
-    }
-//stack.display();
-    System.out.println(stack.getIndex(9));
- }
-
-}
-</code></pre></blockquote>
+            <h1 id="JVM-类加载机制详解"><a href="#JVM-类加载机制详解" class="headerlink" title="JVM 类加载机制详解"></a>JVM 类加载机制详解</h1><p>JVM类加载机制分为五个部分</p>
+<ul>
+<li>加载</li>
+<li>验证</li>
+<li>准备</li>
+<li>解析</li>
+<li>初始化</li>
+</ul>
+<p>加载<br>-</p>
+<blockquote>
+<p>这个阶段会在内存中生成一个代表这个类的java.lang.Class对象，作为方法区这个类的各种数据的入口。注意这里不一定非得要从一个Class文件获取，这里既可以从ZIP包中读取（比如从jar包和war包中读取），也可以在运行时计算生成（动态代理），也可以由其它文件生成（比如将JSP文件转换成对应的Class类）。</p>
+</blockquote>
+<p>验证<br>-</p>
+<blockquote>
+<p>这一阶段的主要目的是为了确保Class文件的字节流中包含的信息是否符合当前虚拟机的要求，并且不会危害虚拟机自身的安全。</p>
+</blockquote>
+<p>准备<br>-</p>
+<blockquote>
+<p>准备阶段是正式为类变量分配内存并设置类变量的初始值阶段，即在方法区中分配这些变量所使用的内存空间。注意这里所说的初始值概念。</p>
+</blockquote>
+<pre><code>比如一个类变量定义为：
+public static int v = 8080
+</code></pre><blockquote>
+<p>实际上变量v在准备阶段过后的初始值为0而不是8080，将v赋值为8080的putstatic指令是程序被编译后，存放于类构造器<client>方法之中，这里我们后面会解释。</client></p>
+</blockquote>
+<pre><code>但是注意如果声明为：
+public static final int v = 8080;
+</code></pre><blockquote>
+<p>在编译阶段会为v生成ConstantValue属性，在准备阶段虚拟机会根据ConstantValue属性将v赋值为8080。</p>
+</blockquote>
+<p>解析<br>-</p>
+<blockquote>
+<p>解析阶段是指虚拟机将常量池中的符号引用替换为直接引用的过程。符号引用就是class文件中的：</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>CONSTANT_Class_info</li>
+<li>CONSTANT_Field_info</li>
+<li>CONSTANT_Method_info</li>
+</ul>
+</blockquote>
+<blockquote>
+<p>等类型的常量。</p>
+</blockquote>
+<blockquote>
+<p>符号引用和直接引用的概念：</p>
+</blockquote>
+<pre><code>符号引用与虚拟机实现的布局无关，引用的目标并不一定要已经加载到
+内存中。各种虚拟机实现的内存布局可以各不相同，但是它们能接受的
+符号引用必须是一致的，因为符号引用的字面量形式明确定义在Java
+虚拟机规范的Class文件格式中。
+直接引用可以是指向目标的指针，相对偏移量或是一个能间接定位到目
+标的句柄。如果有了直接引用，那引用的目标必定已经在内存中存在。
+</code></pre><p>初始化<br>-</p>
+<blockquote>
+<p>初始化阶段是类加载最后一个阶段，前面的类加载阶段之后，除了在加载阶段可以自定义类加载器以外，其它操作都由JVM主导。到了初始阶段，才开始真正执行类中定义的Java程序代码。</p>
+<p>初始化阶段是执行类构造器<client>方法的过程。<client>方法是由编译器自动收集类中的类变量的赋值操作和静态语句块中的语句合并而成的。虚拟机会保证<client>方法执行之前，父类的<client>方法已经执行完毕。p.s: 如果一个类中没有对静态变量赋值也没有静态语句块，那么编译器可以不为这个类生成<client>()方法。</client></client></client></client></client></p>
+<p>注意以下几种情况不会执行类初始化:</p>
+</blockquote>
+<pre><code>通过子类引用父类的静态字段，只会触发父类的初始化，而不会触发子
+类的初始化。
+定义对象数组，不会触发该类的初始化。
+常量在编译期间会存入调用类的常量池中，本质上并没有直接引用定义
+常量的类，不会触发定义常量所在的类。
+通过类名获取Class对象，不会触发类的初始化。
+通过Class.forName加载指定类时，如果指定参数initialize为
+false时，也不会触发类初始化，其实这个参数是告诉虚拟机，是否要
+对类进行初始化。
+通过ClassLoader默认的loadClass方法，也不会触发初始化动作。
+</code></pre><p>关于类加载器<br>-</p>
+<blockquote>
+<p>JVM虚拟机设计团队把加载动作放到JVM外部实现，以便让应用程序决定如何获取所需的类，JVM提供了3种类加载器：</p>
+</blockquote>
+<pre><code>启动类加载器(Bootstrap ClassLoader)：负责加载 JAVA_HOME
+\lib 目录中的，或通过-Xbootclasspath参数指定路径中的，且被
+虚拟机认可（按文件名识别，如rt.jar）的类。
+扩展类加载器(Extension ClassLoader)：负责加载 JAVA_HOME
+\lib\ext 目录中的，或通过java.ext.dirs系统变量指定路径中的
+类库。
+应用程序类加载器(Application ClassLoader)：负责加载用户路
+径（classpath）上的类库。
+</code></pre><blockquote>
+<p>JVM通过双亲委派模型进行类的加载，当然我们也可以通过继承java.lang.ClassLoader实现自定义的类加载器。<br><img src="https://i.imgur.com/9t841hD.png" alt=""></p>
+</blockquote>
+<blockquote>
+<p>当一个类加载器收到类加载任务，会先交给其父类加载器去完成，因此最<br>终加载任务都会传递到顶层的启动类加载器，只有当父类加载器无法完成<br>加载任务时，才会尝试执行加载任务。</p>
+<p>采用双亲委派的一个好处是比如加载位于rt.jar包中的类<br>java.lang.Object，不管是哪个加载器加载这个类，最终都是委托给顶<br>层的启动类加载器进行加载，这样就保证了使用不同的类加载器最终得到<br>的都是同样一个Object对象。</p>
+<p>在有些情境中可能会出现要我们自己来实现一个类加载器的需求，由于这里涉及的内容比较广泛，我想以后单独写一篇文章来讲述，不过这里我们还是稍微来看一下。我们直接看一下jdk中的ClassLoader的源码实现：</p>
+</blockquote>
+<p><img src="https://i.imgur.com/rgM04DE.png" alt=""></p>
+<ul>
+<li>首先通过Class c = findLoadedClass(name);判断一个类是否已经被加载过。</li>
+<li>如果没有被加载过执行if (c == null)中的程序，遵循双亲委派的模型，首先会通过递归从父加载器开始找，直到父类加载器是Bootstrap ClassLoader为止。</li>
+<li>最后根据resolve的值，判断这个class是否需要解析。</li>
+</ul>
+<blockquote>
+<p>而上面的findClass()的实现如下，直接抛出一个异常，并且方法是protected，很明显这是留给我们开发者自己去实现的，这里我们以后我们单独写一篇文章来讲一下如何重写findClass方法来实现我们自己的类加载器。</p>
+</blockquote>
+<p><img src="https://i.imgur.com/on4Sw4X.png" alt=""></p>
 
           
         
@@ -627,7 +490,7 @@ public static void main(String[] args) {
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><a class="page-number" href="/page/13/">13</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -677,7 +540,7 @@ public static void main(String[] args) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -688,7 +551,7 @@ public static void main(String[] args) {
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -699,7 +562,7 @@ public static void main(String[] args) {
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
