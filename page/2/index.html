@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/04/08/Mysql-优化/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/04/08/乐观锁/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/04/08/Mysql-优化/" itemprop="url">MySQL-优化</a></h1>
+                <a class="post-title-link" href="/2018/04/08/乐观锁/" itemprop="url">乐观锁</a></h1>
         
 
         <div class="post-meta">
@@ -290,7 +290,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-08T23:00:04+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-08T23:35:04+08:00">
                 2018-04-08
               </time>
             
@@ -352,32 +352,37 @@
       
         
           
-            <p><strong>B+树</strong><br><img src="https://i.imgur.com/iRgMfhN.jpg" alt=""><br>如上图，是一颗b+树，关于b+树的定义可以参见B+树，这里只说一些重点，浅蓝色的块我们称之为一个磁盘块，可以看到每个磁盘块包含几个数据项（深蓝色所示）和指针（黄色所示），如磁盘块1包含数据项17和35，包含指针P1、P2、P3，P1表示小于17的磁盘块，P2表示在17和35之间的磁盘块，P3表示大于35的磁盘块。真实的数据存在于叶子节点即3、5、9、10、13、15、28、29、36、60、75、79、90、99。非叶子节点只不存储真实的数据，只存储指引搜索方向的数据项，如17、35并不真实存在于数据表中。</p>
-<p><strong>B+树的查找过程</strong></p>
-<p>如图所示，如果要查找数据项29，那么首先会把磁盘块1由磁盘加载到内存，此时发生一次IO，在内存中用二分查找确定29在17和35之间，锁定磁盘块1的P2指针，内存时间因为非常短（相比磁盘的IO）可以忽略不计，通过磁盘块1的P2指针的磁盘地址把磁盘块3由磁盘加载到内存，发生第二次IO，29在26和30之间，锁定磁盘块3的P2指针，通过指针加载磁盘块8到内存，发生第三次IO，同时内存中做二分查找找到29，结束查询，总计三次IO。真实的情况是，3层的b+树可以表示上百万的数据，如果上百万的数据查找只需要三次IO，性能提高将是巨大的，如果没有索引，每个数据项都要发生一次IO，那么总共需要百万次的IO，显然成本非常非常高。</p>
-<p>建索引的几大原则<br>-</p>
-<ul>
-<li>1.最左前缀匹配原则，非常重要的原则，mysql会一直向右匹配直到遇到范围查询(&gt;、&lt;、between、like)就停止匹配，比如a = 1 and b = 2 and c &gt; 3 and d = 4 如果建立(a,b,c,d)顺序的索引，d是用不到索引的，如果建立(a,b,d,c)的索引则都可以用到，a,b,d的顺序可以任意调整。<ul>
-<li>2.=和in可以乱序，比如a = 1 and b = 2 and c = 3 建立(a,b,c)索引可以任意顺序，mysql的查询优化器会帮你优化成索引可以识别的形式</li>
-<li>3.尽量选择区分度高的列作为索引,区分度的公式是count(distinct col)/count(*)，表示字段不重复的比例，比例越大我们扫描的记录数越少，唯一键的区分度是1，而一些状态、性别字段可能在大数据面前区分度就是0，那可能有人会问，这个比例有什么经验值吗？使用场景不同，这个值也很难确定，一般需要join的字段我们都要求是0.1以上，即平均1条扫描10条记录</li>
-<li>4.索引列不能参与计算，保持列“干净”，比如from_unixtime(create_time) = ’2014-05-29’就不能使用到索引，原因很简单，b+树中存的都是数据表中的字段值，但进行检索时，需要把所有元素都应用函数才能比较，显然成本太大。所以语句应该写成create_time = unix_timestamp(’2014-05-29’);</li>
-<li>5.尽量的扩展索引，不要新建索引。比如表中已经有a的索引，现在要加(a,b)的索引，那么只需要修改原来的索引即可</li>
-</ul>
-</li>
-</ul>
-<p>查询优化神器 - explain命令<br>-</p>
-<p>关于explain命令相信大家并不陌生，具体用法和字段含义可以参考官网explain-output，这里需要强调rows是核心指标，绝大部分rows小的语句执行一定很快（有例外，下面会讲到）。所以优化语句基本上都是在优化rows。</p>
-<p>慢查询优化基本步骤<br>-</p>
-<ul>
-<li>1.先运行看看是否真的很慢，注意设置SQL_NO_CACHE</li>
-<li>2.where条件单表查，锁定最小返回记录表。这句话的意思是把查询语句的where都应用到表中返回的记录数最小的表开始查起，单表每个字段分别查询，看哪个字段的区分度最高</li>
-<li>3.explain查看执行计划，是否与1预期一致（从锁定记录较少的表开始查询）</li>
-<li>4.order by limit 形式的sql语句让排序的表优先查</li>
-<li>5.了解业务方使用场景</li>
-<li>6.加索引时参照建索引的几大原则</li>
-<li>7.观察结果，不符合预期继续从0分析</li>
-</ul>
-
+            <p>MySQL悲观锁，但是悲观锁并不是适用于任何场景，它也有它存在的一些不足，因为悲观锁大多数情况下依靠数据库的锁机制实现，以保证操作最大程度的独占性。如果加锁的时间过长，其他用户长时间无法访问，影响了程序的并发访问性，同时这样对数据库性能开销影响也很大，特别是对长事务而言，这样的开销往往无法承受。所以与悲观锁相对的，我们有了乐观锁，具体参见下面介绍：</p>
+<p><strong>乐观锁介绍：</strong></p>
+<p>乐观锁（ Optimistic Locking ） 相对悲观锁而言，乐观锁假设认为数据一般情况下不会造成冲突，所以在数据进行提交更新的时候，才会正式对数据的冲突与否进行检测，如果发现冲突了，则让返回用户错误的信息，让用户决定如何去做。那么我们如何实现乐观锁呢，一般来说有以下2种方式：</p>
+<p>1.使用数据版本（VERSION）记录机制实现，这是乐观锁最常用的一种实现方式。何谓数据版本？即为数据增加一个版本标识，一般是通过为数据库表增加一个数字类型的 “VERSION” 字段来实现。当读取数据时，将VERSION字段的值一同读出，数据每更新一次，对此VERSION值加一。当我们提交更新的时候，判断数据库表对应记录的当前版本信息与第一次取出来的VERSION值进行比对，如果数据库表当前版本号与第一次取出来的VERSION值相等，则予以更新，否则认为是过期数据。用下面的一张图来说明：<br><img src="https://i.imgur.com/CxF2xzZ.jpg" alt=""></p>
+<p>如上图所示，如果更新操作顺序执行，则数据的版本（version）依次递增，不会产生冲突。但是如果发生有不同的业务操作对同一版本的数据进行修改，那么，先提交的操作（图中B）会把数据version更新为2，当A在B之后提交更新时发现数据的version已经被修改了，那么A的更新操作会失败。</p>
+<p>2.乐观锁定的第二种实现方式和第一种差不多，同样是在需要乐观锁控制的table中增加一个字段，名称无所谓，字段类型使用时间戳（timestamp）, 和上面的version类似，也是在更新提交的时候检查当前数据库中数据的时间戳和自己更新前取到的时间戳进行对比，如果一致则OK，否则就是版本冲突。</p>
+<p><strong>使用举例：以MySQL InnoDB为例</strong></p>
+<blockquote>
+<p>还是拿之前的实例来举：商品goods表中有一个字段status，status为1代表商品未被下单，status为2代表商品已经被下单，那么我们对某个商品下单时必须确保该商品status为1。假设商品的id为1。</p>
+<p>下单操作包括3步骤：</p>
+<p>1.查询出商品信息</p>
+<p>select (status,status,version) from t_goods where id=#{id}</p>
+<p>2.根据商品信息生成订单</p>
+<p>3.修改商品status为2</p>
+<p>update t_goods</p>
+<p>set status=2,version=version+1</p>
+<p>where id=#{id} and version=#{version};</p>
+<p>那么为了使用乐观锁，我们首先修改t_goods表，增加一个version字段，数据默认version值为1。</p>
+<p>t_goods表初始数据如下：</p>
+</blockquote>
+<p>Sql代码</p>
+<pre><code>mysql&gt; select * from t_goods;
++—-+——–+——+———+
+| id | status | name | version |
++—-+——–+——+———+
+| 1 | 1 | 道具 | 1 |
+| 2 | 2 | 装备 | 2 |
++—-+——–+——+———+
+2 rows in set
+mysql&gt;
+</code></pre>
           
         
       
@@ -416,7 +421,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -466,7 +471,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">17</span>
+                  <span class="site-state-item-count">18</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
