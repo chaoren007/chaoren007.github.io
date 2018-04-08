@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/02/25/Dubbo/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/04/08/Mysql-优化/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/02/25/Dubbo/" itemprop="url">Dubbo</a></h1>
+                <a class="post-title-link" href="/2018/04/08/Mysql-优化/" itemprop="url">MySQL-优化</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-25T23:00:04+08:00">
-                2018-02-25
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-08T23:00:04+08:00">
+                2018-04-08
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Dubbo/" itemprop="url" rel="index">
-                    <span itemprop="name">Dubbo</span>
+                  <a href="/categories/Mysql/" itemprop="url" rel="index">
+                    <span itemprop="name">Mysql</span>
                   </a>
                 </span>
 
@@ -352,119 +352,31 @@
       
         
           
-            <h1 id="Dubbo是什么？能做什么？"><a href="#Dubbo是什么？能做什么？" class="headerlink" title="Dubbo是什么？能做什么？"></a>Dubbo是什么？能做什么？</h1><blockquote>
-<p>Dubbo是一个分布式服务框架，以及SOA治理方案。其功能主要包括：高性能NIO通讯及多协议集成，服务动态寻址与路由，软负载均衡与容错，依赖分析与降级等。</p>
-</blockquote>
-<p>Dubbo通过长连接减少握手，通过NIO及线程池在单连接上并发拼包处理消息，通过二进制流压缩数据，比常规HTTP等短连接协议更快。在阿里巴巴内部，每天支撑2000多个服务，30多亿访问量，最大单机支撑每天近1亿访问量。</p>
-<blockquote>
-<p>Dubbo RPC服务框架支持丰富的传输协议、序列化方式等通讯相关的配置和扩展。dubbo执行一次RPC请求的过程大致如下：消费者（Consumer）向注册中心（Registry）执行RPC请求，注册中心分配服务URL并路由到具体服务提供方（Provider），消费者和服务提供方建立网络连接，服务提供方在本地创建连接池对象并提供远程服务，对于长连接类型协议（如dubbo协议）将保持连接，减少握手认证，调用过程中可以避免频繁建立和断开连接导致的性能开销，保持长连接需要有心跳包的发送，所以对于非频繁调用的服务保持连接同样会有消耗。 </p>
-<pre><code>长传输协议:dubbo
-传输框架：Netty
-序列化方式：Hession2
-</code></pre><p>dubbo协议采用NIO复用单一长连接更适合满足高并发小数据量的rpc调用</p>
+            <p><strong>B+树</strong><br><img src="https://i.imgur.com/iRgMfhN.jpg" alt=""><br>如上图，是一颗b+树，关于b+树的定义可以参见B+树，这里只说一些重点，浅蓝色的块我们称之为一个磁盘块，可以看到每个磁盘块包含几个数据项（深蓝色所示）和指针（黄色所示），如磁盘块1包含数据项17和35，包含指针P1、P2、P3，P1表示小于17的磁盘块，P2表示在17和35之间的磁盘块，P3表示大于35的磁盘块。真实的数据存在于叶子节点即3、5、9、10、13、15、28、29、36、60、75、79、90、99。非叶子节点只不存储真实的数据，只存储指引搜索方向的数据项，如17、35并不真实存在于数据表中。</p>
+<p><strong>B+树的查找过程</strong></p>
+<p>如图所示，如果要查找数据项29，那么首先会把磁盘块1由磁盘加载到内存，此时发生一次IO，在内存中用二分查找确定29在17和35之间，锁定磁盘块1的P2指针，内存时间因为非常短（相比磁盘的IO）可以忽略不计，通过磁盘块1的P2指针的磁盘地址把磁盘块3由磁盘加载到内存，发生第二次IO，29在26和30之间，锁定磁盘块3的P2指针，通过指针加载磁盘块8到内存，发生第三次IO，同时内存中做二分查找找到29，结束查询，总计三次IO。真实的情况是，3层的b+树可以表示上百万的数据，如果上百万的数据查找只需要三次IO，性能提高将是巨大的，如果没有索引，每个数据项都要发生一次IO，那么总共需要百万次的IO，显然成本非常非常高。</p>
+<p>建索引的几大原则<br>-</p>
 <ul>
-<li>使用Zookeeper作为服务注册中心</li>
+<li>1.最左前缀匹配原则，非常重要的原则，mysql会一直向右匹配直到遇到范围查询(&gt;、&lt;、between、like)就停止匹配，比如a = 1 and b = 2 and c &gt; 3 and d = 4 如果建立(a,b,c,d)顺序的索引，d是用不到索引的，如果建立(a,b,d,c)的索引则都可以用到，a,b,d的顺序可以任意调整。<ul>
+<li>2.=和in可以乱序，比如a = 1 and b = 2 and c = 3 建立(a,b,c)索引可以任意顺序，mysql的查询优化器会帮你优化成索引可以识别的形式</li>
+<li>3.尽量选择区分度高的列作为索引,区分度的公式是count(distinct col)/count(*)，表示字段不重复的比例，比例越大我们扫描的记录数越少，唯一键的区分度是1，而一些状态、性别字段可能在大数据面前区分度就是0，那可能有人会问，这个比例有什么经验值吗？使用场景不同，这个值也很难确定，一般需要join的字段我们都要求是0.1以上，即平均1条扫描10条记录</li>
+<li>4.索引列不能参与计算，保持列“干净”，比如from_unixtime(create_time) = ’2014-05-29’就不能使用到索引，原因很简单，b+树中存的都是数据表中的字段值，但进行检索时，需要把所有元素都应用函数才能比较，显然成本太大。所以语句应该写成create_time = unix_timestamp(’2014-05-29’);</li>
+<li>5.尽量的扩展索引，不要新建索引。比如表中已经有a的索引，现在要加(a,b)的索引，那么只需要修改原来的索引即可</li>
 </ul>
-</blockquote>
-<ul>
-<li>补充：<blockquote>
-<pre><code>mvc架构  --垂直应用架构，前后端分离。
-rpc     --分布式服务架构  使用RPC框架 dubbo
-SOA架构  --流动计算架构  新增调度中心，对服务管控，监督
-微服务架构   在SOA的基础上，将功能分散到各个离散的服务当中。
-微服务技术关注: 服务注册、发现、负载均衡、健康检查、前端路由、容错、服务框架的选择、
-动态配置管理等。
-</code></pre></blockquote>
 </li>
 </ul>
-<h1 id="dubbo通信协议dubbo协议适用范围和适用场景"><a href="#dubbo通信协议dubbo协议适用范围和适用场景" class="headerlink" title="dubbo通信协议dubbo协议适用范围和适用场景"></a>dubbo通信协议dubbo协议适用范围和适用场景</h1><blockquote>
-<p>适用范围：传入传出参数数据包较小（建议小于100K），消费者比提供者个数多，单一消费者无法压满提供者，尽量不要用dubbo协议传输大文件或超大字符串。</p>
-</blockquote>
-<p>适用场景：常规远程服务方法调用</p>
-<blockquote>
-<pre><code>dubbo协议补充：
-连接个数：单连接
-连接方式：长连接
-传输协议：TCP
-传输方式：NIO异步传输
-序列化：Hessian二进制序列化
-</code></pre></blockquote>
-<h2 id="Hessian协议"><a href="#Hessian协议" class="headerlink" title="Hessian协议"></a>Hessian协议</h2><blockquote>
-<p>Hessian协议用于集成Hessian的服务，Hessian底层采用Http通讯，采用Servlet暴露服务，Dubbo缺省内嵌Jetty作为服务器实现<br>基于Hessian的远程调用协议。</p>
-<p>适用场景：页面传输，文件传输，或与原生hessian服务互操作</p>
-<pre><code>连接个数：多连接
-连接方式：短连接
-传输协议：HTTP
-传输方式：同步传输
-序列化：Hessian二进制序列化
-适用范围：传入传出参数数据包较大，提供者比消费者个数多，提供者压力较大，可传文件。
-</code></pre></blockquote>
-<h2 id="http协议"><a href="#http协议" class="headerlink" title="http协议"></a>http协议</h2><blockquote>
-<p>采用Spring的HttpInvoker实现<br>基于http表单的远程调用协议。</p>
-<p>适用场景：需同时给应用程序和浏览器JS使用的服务。</p>
-<pre><code>连接个数：多连接
-连接方式：短连接
-传输协议：HTTP
-传输方式：同步传输
-序列化：表单序列化（JSON）
-适用范围：传入传出参数数据包大小混合，提供者比消费者个数多，可用浏览器查看，可用表单
-或URL传入参数，暂不支持传文件。
-</code></pre></blockquote>
-<h2 id="Webservice协议"><a href="#Webservice协议" class="headerlink" title="Webservice协议"></a>Webservice协议</h2><blockquote>
-<p>基于CXF的frontend-simple和transports-http实现<br>基于WebService的远程调用协议。</p>
-</blockquote>
-<blockquote>
-<p>适用场景：系统集成，跨语言调用。</p>
-<pre><code>连接个数：多连接
-连接方式：短连接
-传输协议：HTTP
-传输方式：同步传输
-序列化：SOAP文本序列化
-</code></pre></blockquote>
-<h2 id="RMI协议"><a href="#RMI协议" class="headerlink" title="RMI协议"></a>RMI协议</h2><blockquote>
-<p>RMI协议采用JDK标准的java.rmi.*实现，采用阻塞式短连接和JDK标准序列化方式，Java标准的远程调用协议。</p>
-</blockquote>
-<blockquote>
-<p>适用场景：常规远程服务方法调用，与原生RMI服务互操作</p>
-<pre><code>连接个数：多连接
-连接方式：短连接
-传输协议：TCP
-传输方式：同步传输
-序列化：Java标准二进制序列化
-适用范围：传入传出参数数据包大小混合，消费者与提供者个数差不多，可传文件。
-</code></pre></blockquote>
-<h1 id="dubbo服务负载均衡策略"><a href="#dubbo服务负载均衡策略" class="headerlink" title="dubbo服务负载均衡策略"></a>dubbo服务负载均衡策略</h1><blockquote>
-<pre><code>Random LoadBalance 随机，按权重
-RoundRobin LoadBalance 轮询 存在慢的提供者累积请求问题
-LeastActive LoadBalance 最小活跃数
-ConsistentHash LoadBalance  一致性hash
-</code></pre></blockquote>
-<h1 id="Dubbo在安全机制方面是如何解决的"><a href="#Dubbo在安全机制方面是如何解决的" class="headerlink" title="Dubbo在安全机制方面是如何解决的"></a>Dubbo在安全机制方面是如何解决的</h1><blockquote>
-<p>Dubbo通过Token令牌防止用户绕过注册中心直连，然后在注册中心上管理授权。Dubbo还提供服务黑白名单，来控制服务所允许的调用方。</p>
-</blockquote>
-<h1 id="dubbo服务集群配置（集群容错模式）"><a href="#dubbo服务集群配置（集群容错模式）" class="headerlink" title="dubbo服务集群配置（集群容错模式）"></a>dubbo服务集群配置（集群容错模式）</h1><blockquote>
-<pre><code>Failover Cluster(默认) 失败自动切换
-Failfast Cluster  快速失败  只发起一次调用，失败立即报错
-Failsafe Cluster   失败安全，出现异常时，直接忽略，写入日志
-Failback Cluster   失败自动恢复，后台记录失败请求，定时重发。
-Forking Cluster    并行调用多个服务器，只要一个成功即返回。
-</code></pre></blockquote>
-<h1 id="dubbo通信协议dubbo协议为什么要消费者比提供者个数多"><a href="#dubbo通信协议dubbo协议为什么要消费者比提供者个数多" class="headerlink" title="dubbo通信协议dubbo协议为什么要消费者比提供者个数多"></a>dubbo通信协议dubbo协议为什么要消费者比提供者个数多</h1><blockquote>
-<p>因dubbo协议采用单一长连接，假设网络为千兆网卡(1024Mbit=128MByte)，<br>根据测试经验数据每条连接最多只能压满7MByte(不同的环境可能不一样，供参考)，理论上1个服务提供者需要20个服务消费者才能压满网卡。</p>
-</blockquote>
-<h1 id="dubbo通信协议dubbo协议为什么不能传大包"><a href="#dubbo通信协议dubbo协议为什么不能传大包" class="headerlink" title="dubbo通信协议dubbo协议为什么不能传大包"></a>dubbo通信协议dubbo协议为什么不能传大包</h1><blockquote>
-<p>因dubbo协议采用单一长连接，<br>如果每次请求的数据包大小为500KByte，假设网络为千兆网卡(1024Mbit=128MByte)，每条连接最大7MByte(不同的环境可能不一样，供参考)，<br>单个服务提供者的TPS(每秒处理事务数)最大为：128MByte / 500KByte = 262。<br>单个消费者调用单个服务提供者的TPS(每秒处理事务数)最大为：7MByte / 500KByte = 14。<br>如果能接受，可以考虑使用，否则网络将成为瓶颈。</p>
-</blockquote>
-<h1 id="dubbo通信协议dubbo协议为什么采用异步单一长连接"><a href="#dubbo通信协议dubbo协议为什么采用异步单一长连接" class="headerlink" title="dubbo通信协议dubbo协议为什么采用异步单一长连接"></a>dubbo通信协议dubbo协议为什么采用异步单一长连接</h1><blockquote>
-<p>因为服务的现状大都是服务提供者少，通常只有几台机器，<br>而服务的消费者多，可能整个网站都在访问该服务，<br>比如Morgan的提供者只有6台提供者，却有上百台消费者，每天有1.5亿次调用，<br>如果采用常规的hessian服务，服务提供者很容易就被压跨，<br>通过单一连接，保证单一消费者不会压死提供者，<br>长连接，减少连接握手验证等，<br>并使用异步IO，复用线程池，防止C10K问题。</p>
-</blockquote>
-<p>Netty和Tomcat有什么区别？ </p>
-<blockquote>
-<p>Netty和Tomcat最大的区别就在于通信协议，Tomcat是基于Http协议的，他的实质是一个基于http协议的web容器，但是Netty不一样，他能通过编程自定义各种协议，因为netty能够通过codec自己来编码/解码字节流，完成类似redis访问的功能，这就是netty和tomcat最大的不同。</p>
-</blockquote>
-<p>附：</p>
-<p><a href="http://dubbo.io/books/dubbo-dev-book/" target="_blank" rel="noopener">dubbo开发手册</a></p>
-<p><a href="http://dubbo.io/books/dubbo-user-book/" target="_blank" rel="noopener">dubbo使用手册</a></p>
+<p>查询优化神器 - explain命令<br>-</p>
+<p>关于explain命令相信大家并不陌生，具体用法和字段含义可以参考官网explain-output，这里需要强调rows是核心指标，绝大部分rows小的语句执行一定很快（有例外，下面会讲到）。所以优化语句基本上都是在优化rows。</p>
+<p>慢查询优化基本步骤<br>-</p>
+<ul>
+<li>1.先运行看看是否真的很慢，注意设置SQL_NO_CACHE</li>
+<li>2.where条件单表查，锁定最小返回记录表。这句话的意思是把查询语句的where都应用到表中返回的记录数最小的表开始查起，单表每个字段分别查询，看哪个字段的区分度最高</li>
+<li>3.explain查看执行计划，是否与1预期一致（从锁定记录较少的表开始查询）</li>
+<li>4.order by limit 形式的sql语句让排序的表优先查</li>
+<li>5.了解业务方使用场景</li>
+<li>6.加索引时参照建索引的几大原则</li>
+<li>7.观察结果，不符合预期继续从0分析</li>
+</ul>
 
           
         
@@ -504,7 +416,7 @@ Forking Cluster    并行调用多个服务器，只要一个成功即返回。
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="page-number current">2</span><a class="page-number" href="/page/3/">3</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/3/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -554,7 +466,7 @@ Forking Cluster    并行调用多个服务器，只要一个成功即返回。
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -565,7 +477,7 @@ Forking Cluster    并行调用多个服务器，只要一个成功即返回。
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -576,7 +488,7 @@ Forking Cluster    并行调用多个服务器，只要一个成功即返回。
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

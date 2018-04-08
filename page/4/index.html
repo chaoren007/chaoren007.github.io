@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/02/22/Redis秒杀模型md/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/02/25/Dubbo/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/02/22/Redis秒杀模型md/" itemprop="url">Redis分布式锁秒杀</a></h1>
+                <a class="post-title-link" href="/2018/02/25/Dubbo/" itemprop="url">Dubbo</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-22T23:11:04+08:00">
-                2018-02-22
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-25T23:00:04+08:00">
+                2018-02-25
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/代码示例/" itemprop="url" rel="index">
-                    <span itemprop="name">代码示例</span>
+                  <a href="/categories/Dubbo/" itemprop="url" rel="index">
+                    <span itemprop="name">Dubbo</span>
                   </a>
                 </span>
 
@@ -352,129 +352,119 @@
       
         
           
-            <h1 id="实现分布式锁流程："><a href="#实现分布式锁流程：" class="headerlink" title="实现分布式锁流程："></a>实现分布式锁流程：</h1><blockquote>
-<pre><code>加锁：redis中的Key-Value存在
-释放锁: 删除key-value
-阻塞模式：若发现已经上锁，在特定的时间轮询
-异常情况：异步操作，加入锁超时机制，expire超时时间
+            <h1 id="Dubbo是什么？能做什么？"><a href="#Dubbo是什么？能做什么？" class="headerlink" title="Dubbo是什么？能做什么？"></a>Dubbo是什么？能做什么？</h1><blockquote>
+<p>Dubbo是一个分布式服务框架，以及SOA治理方案。其功能主要包括：高性能NIO通讯及多协议集成，服务动态寻址与路由，软负载均衡与容错，依赖分析与降级等。</p>
+</blockquote>
+<p>Dubbo通过长连接减少握手，通过NIO及线程池在单连接上并发拼包处理消息，通过二进制流压缩数据，比常规HTTP等短连接协议更快。在阿里巴巴内部，每天支撑2000多个服务，30多亿访问量，最大单机支撑每天近1亿访问量。</p>
+<blockquote>
+<p>Dubbo RPC服务框架支持丰富的传输协议、序列化方式等通讯相关的配置和扩展。dubbo执行一次RPC请求的过程大致如下：消费者（Consumer）向注册中心（Registry）执行RPC请求，注册中心分配服务URL并路由到具体服务提供方（Provider），消费者和服务提供方建立网络连接，服务提供方在本地创建连接池对象并提供远程服务，对于长连接类型协议（如dubbo协议）将保持连接，减少握手认证，调用过程中可以避免频繁建立和断开连接导致的性能开销，保持长连接需要有心跳包的发送，所以对于非频繁调用的服务保持连接同样会有消耗。 </p>
+<pre><code>长传输协议:dubbo
+传输框架：Netty
+序列化方式：Hession2
+</code></pre><p>dubbo协议采用NIO复用单一长连接更适合满足高并发小数据量的rpc调用</p>
+<ul>
+<li>使用Zookeeper作为服务注册中心</li>
+</ul>
+</blockquote>
+<ul>
+<li>补充：<blockquote>
+<pre><code>mvc架构  --垂直应用架构，前后端分离。
+rpc     --分布式服务架构  使用RPC框架 dubbo
+SOA架构  --流动计算架构  新增调度中心，对服务管控，监督
+微服务架构   在SOA的基础上，将功能分散到各个离散的服务当中。
+微服务技术关注: 服务注册、发现、负载均衡、健康检查、前端路由、容错、服务框架的选择、
+动态配置管理等。
 </code></pre></blockquote>
-<h2 id="注解定义"><a href="#注解定义" class="headerlink" title="注解定义"></a>注解定义</h2><blockquote>
-<pre><code>/** 锁在给定的等待时间内空闲，则获取锁成功 返回true， 否则
-返回false 
- * @param subKey 
- * @param timeout 如果timeout=0,取不到锁时,不等待,直接返回. 
- * @param unit 
- * @return 
- */  
-public boolean tryLock(String subKey, 
-  long timeout, TimeUnit unit) {  
-  String key = LOCK_KEY + subKey;  
-  Jedis jedis = null;  
-  try {  
-    jedis = getConnection();  
-    if (jedis == null) {  
-    return Boolean.FALSE;  
-  }  
-  long nano = System.nanoTime();  
-  do{  
-    logger.debug(&quot;try lock key: &quot; + key);  
-    Long i = jedis.setnx(key, key);  
-    if (i == 1) {  
-    jedis.expire(key, EXPIRED_TIME);  
-    logger.debug(&quot;get lock, key: &quot; + key + &quot; ,
-    expire in &quot; + EXPIRED_TIME + &quot; seconds.&quot;);  
-    return Boolean.TRUE;  
-  } else { // 存在锁  
-    if (logger.isDebugEnabled()) {  
-      String desc = jedis.get(key);  
-      logger.debug(&quot;key: &quot; + key + &quot; locked by
-       another business：&quot; + desc);  
-    }  
-  }  
-  if (timeout == 0) { //取不到锁时,不等待,直接返回.  
-    break;  
-  }  
-  Thread.sleep(200);  
-  }while ((System.nanoTime() - nano) &lt; 
-   unit.toNanos(timeout));//取不到锁时等待,直到timeout  
-   return Boolean.FALSE;  
-  } catch (JedisConnectionException je) {  
-     logger.error(je.getMessage(), je);  
-     returnBorkenConnection(jedis);  
-  } catch (Exception e) {  
-     logger.error(e.getMessage(), e);  
-  } finally {  
-     returnConnection(jedis);  
-  }  
- return Boolean.FALSE;  
-}  
-
-
-/** 
- * 如果锁空闲立即返回   获取失败 一直等待 
- * @param subKey 
- */  
-public boolean lock(String subKey) {  
-  String key = LOCK_KEY + subKey;  
-  Jedis jedis = null;  
-  boolean isLock = false;  
-  try {  
-    jedis = getConnection();  
-    if (jedis == null) {  
-    return isLock;  
-  }  
-  while (true) {  
-   logger.debug(&quot;lock key: &quot; + key);  
-   Long i = jedis.setnx(key, key);  
-    if (i == 1) {  
-     jedis.expire(key, EXPIRED_TIME);  
-     logger.debug(&quot;get lock, key: &quot; + key + &quot; ,
-      expire in &quot; + EXPIRED_TIME + &quot; seconds.&quot;);  
-     isLock = true;  
-   } else {  
-    if (logger.isDebugEnabled()) {  
-      String desc = jedis.get(key);  
-      logger.debug(&quot;key: &quot; + key + &quot; locked by
-       another business：&quot; + desc);  
-    }  
-   isLock = false;  
-  }  
- Thread.sleep(500);  
-  }  
-  } catch (JedisConnectionException je) {  
-    logger.error(je.getMessage(), je);  
-    returnBorkenConnection(jedis);  
-  } catch (Exception e) {  
-    logger.error(e.getMessage(), e);  
-  } finally {  
-     returnConnection(jedis);  
-  }  
-    return isLock;  
- }  
-/** 
- * 释放锁 
- * @param subKey 
- */  
-public void unLock(String subKey) {  
-  String key = LOCK_KEY + subKey;  
-  Jedis jedis = null;  
-  try {  
-    jedis = getConnection();  
-     if (jedis == null) {  
-     return;  
-  }  
-  jedis.del(key);  
-  logger.debug(&quot;release lock, keys :&quot; + key);  
-  } catch (JedisConnectionException je) {  
-     logger.error(je.getMessage(), je);  
-     returnBorkenConnection(jedis);  
-  } catch (Exception e) {  
-     logger.error(e.getMessage(), e);  
-  } finally {  
-     returnConnection(jedis);  
-  }  
-}  
+</li>
+</ul>
+<h1 id="dubbo通信协议dubbo协议适用范围和适用场景"><a href="#dubbo通信协议dubbo协议适用范围和适用场景" class="headerlink" title="dubbo通信协议dubbo协议适用范围和适用场景"></a>dubbo通信协议dubbo协议适用范围和适用场景</h1><blockquote>
+<p>适用范围：传入传出参数数据包较小（建议小于100K），消费者比提供者个数多，单一消费者无法压满提供者，尽量不要用dubbo协议传输大文件或超大字符串。</p>
+</blockquote>
+<p>适用场景：常规远程服务方法调用</p>
+<blockquote>
+<pre><code>dubbo协议补充：
+连接个数：单连接
+连接方式：长连接
+传输协议：TCP
+传输方式：NIO异步传输
+序列化：Hessian二进制序列化
 </code></pre></blockquote>
+<h2 id="Hessian协议"><a href="#Hessian协议" class="headerlink" title="Hessian协议"></a>Hessian协议</h2><blockquote>
+<p>Hessian协议用于集成Hessian的服务，Hessian底层采用Http通讯，采用Servlet暴露服务，Dubbo缺省内嵌Jetty作为服务器实现<br>基于Hessian的远程调用协议。</p>
+<p>适用场景：页面传输，文件传输，或与原生hessian服务互操作</p>
+<pre><code>连接个数：多连接
+连接方式：短连接
+传输协议：HTTP
+传输方式：同步传输
+序列化：Hessian二进制序列化
+适用范围：传入传出参数数据包较大，提供者比消费者个数多，提供者压力较大，可传文件。
+</code></pre></blockquote>
+<h2 id="http协议"><a href="#http协议" class="headerlink" title="http协议"></a>http协议</h2><blockquote>
+<p>采用Spring的HttpInvoker实现<br>基于http表单的远程调用协议。</p>
+<p>适用场景：需同时给应用程序和浏览器JS使用的服务。</p>
+<pre><code>连接个数：多连接
+连接方式：短连接
+传输协议：HTTP
+传输方式：同步传输
+序列化：表单序列化（JSON）
+适用范围：传入传出参数数据包大小混合，提供者比消费者个数多，可用浏览器查看，可用表单
+或URL传入参数，暂不支持传文件。
+</code></pre></blockquote>
+<h2 id="Webservice协议"><a href="#Webservice协议" class="headerlink" title="Webservice协议"></a>Webservice协议</h2><blockquote>
+<p>基于CXF的frontend-simple和transports-http实现<br>基于WebService的远程调用协议。</p>
+</blockquote>
+<blockquote>
+<p>适用场景：系统集成，跨语言调用。</p>
+<pre><code>连接个数：多连接
+连接方式：短连接
+传输协议：HTTP
+传输方式：同步传输
+序列化：SOAP文本序列化
+</code></pre></blockquote>
+<h2 id="RMI协议"><a href="#RMI协议" class="headerlink" title="RMI协议"></a>RMI协议</h2><blockquote>
+<p>RMI协议采用JDK标准的java.rmi.*实现，采用阻塞式短连接和JDK标准序列化方式，Java标准的远程调用协议。</p>
+</blockquote>
+<blockquote>
+<p>适用场景：常规远程服务方法调用，与原生RMI服务互操作</p>
+<pre><code>连接个数：多连接
+连接方式：短连接
+传输协议：TCP
+传输方式：同步传输
+序列化：Java标准二进制序列化
+适用范围：传入传出参数数据包大小混合，消费者与提供者个数差不多，可传文件。
+</code></pre></blockquote>
+<h1 id="dubbo服务负载均衡策略"><a href="#dubbo服务负载均衡策略" class="headerlink" title="dubbo服务负载均衡策略"></a>dubbo服务负载均衡策略</h1><blockquote>
+<pre><code>Random LoadBalance 随机，按权重
+RoundRobin LoadBalance 轮询 存在慢的提供者累积请求问题
+LeastActive LoadBalance 最小活跃数
+ConsistentHash LoadBalance  一致性hash
+</code></pre></blockquote>
+<h1 id="Dubbo在安全机制方面是如何解决的"><a href="#Dubbo在安全机制方面是如何解决的" class="headerlink" title="Dubbo在安全机制方面是如何解决的"></a>Dubbo在安全机制方面是如何解决的</h1><blockquote>
+<p>Dubbo通过Token令牌防止用户绕过注册中心直连，然后在注册中心上管理授权。Dubbo还提供服务黑白名单，来控制服务所允许的调用方。</p>
+</blockquote>
+<h1 id="dubbo服务集群配置（集群容错模式）"><a href="#dubbo服务集群配置（集群容错模式）" class="headerlink" title="dubbo服务集群配置（集群容错模式）"></a>dubbo服务集群配置（集群容错模式）</h1><blockquote>
+<pre><code>Failover Cluster(默认) 失败自动切换
+Failfast Cluster  快速失败  只发起一次调用，失败立即报错
+Failsafe Cluster   失败安全，出现异常时，直接忽略，写入日志
+Failback Cluster   失败自动恢复，后台记录失败请求，定时重发。
+Forking Cluster    并行调用多个服务器，只要一个成功即返回。
+</code></pre></blockquote>
+<h1 id="dubbo通信协议dubbo协议为什么要消费者比提供者个数多"><a href="#dubbo通信协议dubbo协议为什么要消费者比提供者个数多" class="headerlink" title="dubbo通信协议dubbo协议为什么要消费者比提供者个数多"></a>dubbo通信协议dubbo协议为什么要消费者比提供者个数多</h1><blockquote>
+<p>因dubbo协议采用单一长连接，假设网络为千兆网卡(1024Mbit=128MByte)，<br>根据测试经验数据每条连接最多只能压满7MByte(不同的环境可能不一样，供参考)，理论上1个服务提供者需要20个服务消费者才能压满网卡。</p>
+</blockquote>
+<h1 id="dubbo通信协议dubbo协议为什么不能传大包"><a href="#dubbo通信协议dubbo协议为什么不能传大包" class="headerlink" title="dubbo通信协议dubbo协议为什么不能传大包"></a>dubbo通信协议dubbo协议为什么不能传大包</h1><blockquote>
+<p>因dubbo协议采用单一长连接，<br>如果每次请求的数据包大小为500KByte，假设网络为千兆网卡(1024Mbit=128MByte)，每条连接最大7MByte(不同的环境可能不一样，供参考)，<br>单个服务提供者的TPS(每秒处理事务数)最大为：128MByte / 500KByte = 262。<br>单个消费者调用单个服务提供者的TPS(每秒处理事务数)最大为：7MByte / 500KByte = 14。<br>如果能接受，可以考虑使用，否则网络将成为瓶颈。</p>
+</blockquote>
+<h1 id="dubbo通信协议dubbo协议为什么采用异步单一长连接"><a href="#dubbo通信协议dubbo协议为什么采用异步单一长连接" class="headerlink" title="dubbo通信协议dubbo协议为什么采用异步单一长连接"></a>dubbo通信协议dubbo协议为什么采用异步单一长连接</h1><blockquote>
+<p>因为服务的现状大都是服务提供者少，通常只有几台机器，<br>而服务的消费者多，可能整个网站都在访问该服务，<br>比如Morgan的提供者只有6台提供者，却有上百台消费者，每天有1.5亿次调用，<br>如果采用常规的hessian服务，服务提供者很容易就被压跨，<br>通过单一连接，保证单一消费者不会压死提供者，<br>长连接，减少连接握手验证等，<br>并使用异步IO，复用线程池，防止C10K问题。</p>
+</blockquote>
+<p>Netty和Tomcat有什么区别？ </p>
+<blockquote>
+<p>Netty和Tomcat最大的区别就在于通信协议，Tomcat是基于Http协议的，他的实质是一个基于http协议的web容器，但是Netty不一样，他能通过编程自定义各种协议，因为netty能够通过codec自己来编码/解码字节流，完成类似redis访问的功能，这就是netty和tomcat最大的不同。</p>
+</blockquote>
+<p>附：</p>
+<p><a href="http://dubbo.io/books/dubbo-dev-book/" target="_blank" rel="noopener">dubbo开发手册</a></p>
+<p><a href="http://dubbo.io/books/dubbo-user-book/" target="_blank" rel="noopener">dubbo使用手册</a></p>
 
           
         
@@ -514,7 +504,7 @@ public void unLock(String subKey) {
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/3/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/3/">3</a><span class="page-number current">4</span><a class="page-number" href="/page/5/">5</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/5/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -564,7 +554,7 @@ public void unLock(String subKey) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -575,7 +565,7 @@ public void unLock(String subKey) {
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -586,7 +576,7 @@ public void unLock(String subKey) {
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

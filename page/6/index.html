@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/01/15/线程池/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/02/22/Redis秒杀模型md/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/15/线程池/" itemprop="url">线程池</a></h1>
+                <a class="post-title-link" href="/2018/02/22/Redis秒杀模型md/" itemprop="url">Redis分布式锁秒杀</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-01-15T23:00:04+08:00">
-                2018-01-15
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-02-22T23:11:04+08:00">
+                2018-02-22
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/集合/" itemprop="url" rel="index">
-                    <span itemprop="name">集合</span>
+                  <a href="/categories/代码示例/" itemprop="url" rel="index">
+                    <span itemprop="name">代码示例</span>
                   </a>
                 </span>
 
@@ -352,19 +352,129 @@
       
         
           
-            <blockquote>
-<p>Java通过Executors提供四种线程池，分别为：</p>
-<p>newCachedThreadPool创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。</p>
-</blockquote>
-<blockquote>
-<p>newFixedThreadPool 创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。</p>
-</blockquote>
-<blockquote>
-<p>newScheduledThreadPool 创建一个定长线程池，支持定时及周期性任务执行。</p>
-</blockquote>
-<blockquote>
-<p>newSingleThreadExecutor 创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。</p>
-</blockquote>
+            <h1 id="实现分布式锁流程："><a href="#实现分布式锁流程：" class="headerlink" title="实现分布式锁流程："></a>实现分布式锁流程：</h1><blockquote>
+<pre><code>加锁：redis中的Key-Value存在
+释放锁: 删除key-value
+阻塞模式：若发现已经上锁，在特定的时间轮询
+异常情况：异步操作，加入锁超时机制，expire超时时间
+</code></pre></blockquote>
+<h2 id="注解定义"><a href="#注解定义" class="headerlink" title="注解定义"></a>注解定义</h2><blockquote>
+<pre><code>/** 锁在给定的等待时间内空闲，则获取锁成功 返回true， 否则
+返回false 
+ * @param subKey 
+ * @param timeout 如果timeout=0,取不到锁时,不等待,直接返回. 
+ * @param unit 
+ * @return 
+ */  
+public boolean tryLock(String subKey, 
+  long timeout, TimeUnit unit) {  
+  String key = LOCK_KEY + subKey;  
+  Jedis jedis = null;  
+  try {  
+    jedis = getConnection();  
+    if (jedis == null) {  
+    return Boolean.FALSE;  
+  }  
+  long nano = System.nanoTime();  
+  do{  
+    logger.debug(&quot;try lock key: &quot; + key);  
+    Long i = jedis.setnx(key, key);  
+    if (i == 1) {  
+    jedis.expire(key, EXPIRED_TIME);  
+    logger.debug(&quot;get lock, key: &quot; + key + &quot; ,
+    expire in &quot; + EXPIRED_TIME + &quot; seconds.&quot;);  
+    return Boolean.TRUE;  
+  } else { // 存在锁  
+    if (logger.isDebugEnabled()) {  
+      String desc = jedis.get(key);  
+      logger.debug(&quot;key: &quot; + key + &quot; locked by
+       another business：&quot; + desc);  
+    }  
+  }  
+  if (timeout == 0) { //取不到锁时,不等待,直接返回.  
+    break;  
+  }  
+  Thread.sleep(200);  
+  }while ((System.nanoTime() - nano) &lt; 
+   unit.toNanos(timeout));//取不到锁时等待,直到timeout  
+   return Boolean.FALSE;  
+  } catch (JedisConnectionException je) {  
+     logger.error(je.getMessage(), je);  
+     returnBorkenConnection(jedis);  
+  } catch (Exception e) {  
+     logger.error(e.getMessage(), e);  
+  } finally {  
+     returnConnection(jedis);  
+  }  
+ return Boolean.FALSE;  
+}  
+
+
+/** 
+ * 如果锁空闲立即返回   获取失败 一直等待 
+ * @param subKey 
+ */  
+public boolean lock(String subKey) {  
+  String key = LOCK_KEY + subKey;  
+  Jedis jedis = null;  
+  boolean isLock = false;  
+  try {  
+    jedis = getConnection();  
+    if (jedis == null) {  
+    return isLock;  
+  }  
+  while (true) {  
+   logger.debug(&quot;lock key: &quot; + key);  
+   Long i = jedis.setnx(key, key);  
+    if (i == 1) {  
+     jedis.expire(key, EXPIRED_TIME);  
+     logger.debug(&quot;get lock, key: &quot; + key + &quot; ,
+      expire in &quot; + EXPIRED_TIME + &quot; seconds.&quot;);  
+     isLock = true;  
+   } else {  
+    if (logger.isDebugEnabled()) {  
+      String desc = jedis.get(key);  
+      logger.debug(&quot;key: &quot; + key + &quot; locked by
+       another business：&quot; + desc);  
+    }  
+   isLock = false;  
+  }  
+ Thread.sleep(500);  
+  }  
+  } catch (JedisConnectionException je) {  
+    logger.error(je.getMessage(), je);  
+    returnBorkenConnection(jedis);  
+  } catch (Exception e) {  
+    logger.error(e.getMessage(), e);  
+  } finally {  
+     returnConnection(jedis);  
+  }  
+    return isLock;  
+ }  
+/** 
+ * 释放锁 
+ * @param subKey 
+ */  
+public void unLock(String subKey) {  
+  String key = LOCK_KEY + subKey;  
+  Jedis jedis = null;  
+  try {  
+    jedis = getConnection();  
+     if (jedis == null) {  
+     return;  
+  }  
+  jedis.del(key);  
+  logger.debug(&quot;release lock, keys :&quot; + key);  
+  } catch (JedisConnectionException je) {  
+     logger.error(je.getMessage(), je);  
+     returnBorkenConnection(jedis);  
+  } catch (Exception e) {  
+     logger.error(e.getMessage(), e);  
+  } finally {  
+     returnConnection(jedis);  
+  }  
+}  
+</code></pre></blockquote>
 
           
         
@@ -404,7 +514,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/5/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/5/">5</a><span class="page-number current">6</span><a class="page-number" href="/page/7/">7</a><span class="space">&hellip;</span><a class="page-number" href="/page/17/">17</a><a class="extend next" rel="next" href="/page/7/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -454,7 +564,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">15</span>
+                  <span class="site-state-item-count">17</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -465,7 +575,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -476,7 +586,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">8</span>
+                  <span class="site-state-item-count">9</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
