@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/09/12/栈Java实现/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/09/29/JVM内存溢出和GC回收机制/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/09/12/栈Java实现/" itemprop="url">栈Java实现</a></h1>
+                <a class="post-title-link" href="/2017/09/29/JVM内存溢出和GC回收机制/" itemprop="url">JVM内存溢出和GC回收机制</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-12T22:44:04+08:00">
-                2017-09-12
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-09-29T20:03:00+08:00">
+                2017-09-29
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/代码示例/" itemprop="url" rel="index">
-                    <span itemprop="name">代码示例</span>
+                  <a href="/categories/JVM虚拟机/" itemprop="url" rel="index">
+                    <span itemprop="name">JVM虚拟机</span>
                   </a>
                 </span>
 
@@ -352,242 +352,290 @@
       
         
           
-            <h3 id="接口定义"><a href="#接口定义" class="headerlink" title="接口定义"></a>接口定义</h3><blockquote>
-<pre><code>package stack;
-public interface IStack&lt;E{
-  //1.判断空栈
-  public boolean isEmpty();
+            <h1 id="1、JVM栈内存溢出"><a href="#1、JVM栈内存溢出" class="headerlink" title="1、JVM栈内存溢出"></a>1、JVM栈内存溢出</h1><ul>
+<li><p>如果一个线程请求的栈深度大于虚拟机所允许的深度，则会抛出StackOverflowError异常。递归调用方法。</p>
+</li>
+<li><p>没有足够的空间去申请到合适的栈帧了，则会报出OutOfMemoryError异常。</p>
+</li>
+</ul>
+<h1 id="2、堆Java-Heap内存溢出"><a href="#2、堆Java-Heap内存溢出" class="headerlink" title="2、堆Java Heap内存溢出"></a>2、堆Java Heap内存溢出</h1><ul>
+<li><p>OOM(OutOfMemoryError)：指的是应用的内存已经不能满足正常使用了。通常是对结果的描述。</p>
+</li>
+<li><p>区别与内存的溢出的ML(Memory Leak):指的是应用在使用资源后没有及时释放，导致内存中存在不需要的资源，这是一种状态的描述。通常情况下，内存泄漏导致堆中的内存使用不断增加，从而引发内存溢出。</p>
+</li>
+</ul>
+<h1 id="3、GC回收机制"><a href="#3、GC回收机制" class="headerlink" title="3、GC回收机制"></a>3、GC回收机制</h1><p>GC在一个独立的线程中运行来删除不再引用的内存。</p>
+<ul>
+<li><strong>如何判断对象需要被回收</strong></li>
+</ul>
+<p><strong>（1）引用计数器</strong>（不能解决循环调用问题）</p>
+<blockquote>
+<p>给对象添加一个引用计数器，每当有一个地方引用它时，计数器加一。反之每当一个一个引用失效时，计数器减一。当计数器为0的时候，则表示对象不被引用。 </p>
+</blockquote>
+<p><strong>（2）可达性分析</strong></p>
+<blockquote>
+<p>设立一系列的”GC ROOTS”对象为起始点，从这些起始点开始向下搜索，搜索走过的路径称为引用链，当一个对象没有任何引用链相连时，则证明此对象不可达。</p>
+<p> 在Java语言中,可作为GC Roots的对象包括下面几种 ：</p>
+</blockquote>
+<blockquote>
+<ol>
+<li>虚拟机栈(栈帧中的本地变量表)中引用的对象。</li>
+<li>方法区中类静态属性引用的对象。</li>
+<li>方法区中常量引用的对象。</li>
+<li>本地方法栈中JNI(即一般说的Native方法)引用的对象。</li>
+</ol>
+</blockquote>
+<ul>
+<li><strong>被GC判断为”垃圾”的对象一定会回收吗?</strong></li>
+</ul>
+<blockquote>
+<p><strong>即使在可达性分析算法中不可达的对象</strong>,也并非是“非死不可”的,这时候它们暂时处于“缓刑”阶段,要真正宣告一个对象死亡,至少要经历两次标记过程:如果对象在进行可达性分析后发现没有与GC Roots相连接的引用链,那它将会被第一次标记并且进行一次筛选,筛选的条件是此对象是否有必要执行finalize()方法。当对象没有覆盖finalize()方法,或者finalize()方法已经被虚拟机调用过,虚拟机将这两种情况都视为“没有必要执行”。(即意味着直接回收)</p>
+</blockquote>
+<blockquote>
+<p><strong>如果这个对象被判定为有必要执行finalize()方法,那么这个对象将会放置在一个叫做F-Queue的队列之中,并在稍后由一个由虚拟机自动建立的、低优先级的Finalizer线程去执行它。</strong>这里所谓的“执行”是指虚拟机会触发这个方法,但并不承诺会等待它运行结束,这样做的原因是,如果一个对象在finalize()方法中执行缓慢,或者发生了死循环(更极端的情况),将很可能会导致F-Queue队列中其他对象永久处于等待,甚至导致整个内存回收系统崩溃。</p>
+</blockquote>
+<blockquote>
+<p><strong>finalize()方法是对象逃脱死亡命运的最后一次机会,</strong>稍后GC将对F-Queue中的对象进行第二次小规模的标记,如果对象要在finalize()中成功拯救自己——只要重新与引用链上的任何一个对象建立关联即可,譬如把自己(this关键字)赋值给某个类变量或者对象的成员变量,那在第二次标记时它将被移除出“即将回收”的集合;如果对象这时候还没有逃脱,那基本上它就真的被回收了。</p>
+</blockquote>
+<ul>
+<li><strong>示例代码</strong>  </li>
+</ul>
+<blockquote>
+<pre><code>public class FinalizeEscapeGC {
+public static FinalizeEscapeGC SAVE_HOOK = null;
 
-  //2.判断栈满
-  public boolean isMax();
+public void isAlive() {
+    System.out.println(&quot;yes,i am still alive:)&quot;);
+}
 
-  //3.入栈
-  public boolean push(E e);
+@Override
+protected void finalize() throws Throwable {
+    super.finalize();
+    System.out.println(&quot;finalize mehtod executed!&quot;);
+    FinalizeEscapeGC.SAVE_HOOK = this;
+}
 
-  //4.出栈
-  public E pop();
-
-  //5.返回栈顶
-  public E peek();
-
-  //6.返回元素在栈中的位置
-  public int getIndex(E e);
-
-  //7.返回栈的实际长度
-  public int size();
-
-  //8.返回栈容量
-  public int getStackSize();
-
-  //9.打印栈
-  public void display();
- }
+public static void main(String[] args) throws Throwable {
+    SAVE_HOOK = new FinalizeEscapeGC();
+    // 对象第一次成功拯救自己
+    SAVE_HOOK = null;
+    System.gc();
+    // 因为finalize方法优先级很低,所以暂停0.5秒以等待它
+    Thread.sleep(500);
+    if (SAVE_HOOK != null) {
+        SAVE_HOOK.isAlive();
+    } else {
+        System.out.println(&quot;no,i am dead:(&quot;);
+    }
+    // 下面这段代码与上面的完全相同,但是这次自救却失败了
+    SAVE_HOOK = null;
+    System.gc();
+    // 因为finalize方法优先级很低,所以暂停0.5秒以等待它
+    Thread.sleep(500);
+    if (SAVE_HOOK != null) {
+        SAVE_HOOK.isAlive();
+    } else {
+        System.out.println(&quot;no,i am dead:(&quot;);
+    }
+}
+</code></pre><p>} </p>
+</blockquote>
+<ul>
+<li>运行结果</li>
+</ul>
+<blockquote>
+<pre><code>finalize mehtod executed!
+yes,i am still alive:)
+no,i am dead:(
 </code></pre></blockquote>
-<h3 id="顺序栈"><a href="#顺序栈" class="headerlink" title="顺序栈"></a>顺序栈</h3><blockquote>
-<pre><code> package stack;
-
- //我的栈数据结构
-public class MyStack&lt;Eimplements IStack&lt;E&gt;{
-private Object[] data = null; //数据域
-private int top = -1;           //栈顶指针初始化为-1
-private int maxSize = 0;      //栈最大容量
-
-//默认设置栈容量为10
-MyStack(){
-    this(10);
-}
-
-public MyStack(int initialSize){
-    if(initialSize &gt;= 0){
-        this.data = new Object[initialSize]; //初始化数组
-        this.maxSize = initialSize; //设置栈最大容量
-        this.top = -1;
-    }
-}
-
-public boolean isEmpty() {
-    return top == -1 ? true : false; //根据栈顶值判断,如果栈顶指针没有更新，则为空栈
-}
-
-public boolean isMax() {
-    return top &gt;= maxSize-1 ? true : false; //根据栈顶值判断，如果栈顶指针大于最大容量，则为满栈
-}
-
-public boolean push(E e) {
-    if(isMax()){
-        System.err.println(&quot;对不起,栈已满,无法入栈&quot;);
-        return false;
-    }
-    top ++; //更新栈顶下标
-    data[top] = e; //将元素添加到表中
-    //System.out.println(&quot;添加&quot; + e + &quot;成功&quot;);
-    return true;
-}
-
-@SuppressWarnings(&quot;unchecked&quot;)
-public E pop() {
-    if(isEmpty()){
-        System.err.println(&quot;对不起，目前是空栈，没有元素可以出栈&quot;);
-        return null;
-    }
-    E e = (E) data[top]; //返回当前的栈顶元素
-    top--; //更新栈顶
-    return e;
-}
-
-@SuppressWarnings(&quot;unchecked&quot;)
-public E peek() {
-    if(isEmpty()){
-        System.err.println(&quot;对不起，目前是空栈，无法返回栈顶元素&quot;);
-        return null;
-    }
-    return (E) data[top]; //返回栈顶元素
-}
-
-public int getIndex(E e) {
-    //根据栈顶和栈底(-1)遍历栈
-    while(top != -1){
-        //peek()返回当前栈顶
-        if(peek().equals(e)){
-            return top;
-        }
-        top --;
-    }     
-    return -1;
-}
-public int size() {
-    return this.top+1; //栈顶值+1，为栈元素的实际个数
-}
-
-public int getStackSize() {
-    return this.maxSize; //返回栈实际长度
-}
-
-public void display() {
-    //根据栈顶和栈底(-1)遍历
-    while(top != -1){
-        System.out.println(top);
-        top --;
-    }
-}
-
-public static void main(String[] args) {
-    MyStack&lt;Integerstack = new MyStack&lt;Integer&gt;();
-    //入栈
-    for (int i = 0; i &lt; 10; i++) {
-        stack.push(i); 
-    }
-    //出栈
-    //stack.pop();
-    //返回栈顶
-    //System.out.println(stack.peek());
-    //求长
-    //System.out.println(stack.size());
-
-    }
-
-}
+<blockquote>
+<p><strong>SAVE_HOOK对</strong>象的finalize()方法确实被GC收集器触发过,并且在被收集前成功逃脱了。另外一个值得注意的地方是,代码中有两段完全一样的代码片段,执行结果却是一次逃脱成功,一次失败,这是因为任何一个对象的finalize()方法都只会被系统自动调用一次,如果对象面临下一次回收,它的finalize()方法不会被再次执行,因此第二段代码的自救行动失败了。因为finalize()方法已经被虚拟机调用过,虚拟机都视为“没有必要执行”。(即意味着直接回收)</p>
+</blockquote>
+<ul>
+<li><strong>年轻代的GC(Minor GC)</strong></li>
+</ul>
+<blockquote>
+<p>HotSpot JVM把年轻代分为了三部分：1个Eden区和2个Survivor区（分别叫from和to）。</p>
+<p>在sun 的文档说明中，对JVM堆的新域，是采用coping算法。</p>
+<p>当Eden充满时，GC将开始工作，首先停止应用程序的运行，对象只会存在于Eden区和名为“From”的Survivor区，Survivor区“To”是空的。紧接着进行GC，Eden区中所有存活的对象都会被复制到“To”，而在“From”区中，仍存活的对象会根据他们的年龄值来决定去向。年龄达到一定值(年龄阈值，可以通过-XX:MaxTenuringThreshold来设置默认值是15)的对象会被移动到年老代中，没有达到阈值的对象会被复制到“To”区域。经过这次GC后，Eden区和From区已经被清空。这个时候，“From”和“To”会交换他们的角色，也就是新的“To”就是上次GC前的“From”，新的“From”就是上次GC前的“To”。不管怎样，都会保证名为To的Survivor区域是空的。Minor GC会一直重复这样的过程，直到“To”区被填满，“To”区被填满之后，会将所有对象移动到年老代中。</p>
+<p>虚拟机给每个对象定义了一个对象年龄（Age）计数器。</p>
+</blockquote>
+<ul>
+<li><p><strong>有关年轻代的JVM参数</strong></p>
+<blockquote>
+<pre><code>1)-XX:NewSize和-XX:MaxNewSize
+用于设置年轻代的大小，建议设为整个堆大小的1/3或者1/4,两个值设为一样大。 
+2)-XX:SurvivorRatio 
+用于设置Eden和其中一个Survivor的比值，这个值也比较重要。
+3)-XX:+PrintTenuringDistribution
+这个参数用于显示每次Minor GC时Survivor区中各个年龄段的对象的大小。
+4)-XX:InitialTenuringThreshol和-XX:MaxTenuringThreshold
+用于设置晋升到老年代的对象年龄的最小值和最大值，每个对象在坚持过一次Minor GC之后，年龄就加1。
 </code></pre></blockquote>
-<h3 id="链栈"><a href="#链栈" class="headerlink" title="链栈"></a>链栈</h3><blockquote>
-<p>   package stack;</p>
-<pre><code>//链栈是栈的链式存储结构，由多个节点组成。在链栈中的栈顶为头节点，节点由数据域和指针域组成
-//对链栈的操作都是间接的通过栈顶(头节点)完成。
-//顺序栈是一种特殊的顺序表
-//链栈是一种特殊链表
-public class LinkedStack{
-//定义节点类
-private class Node{
-    public Object data = null; //数据域
-    public Node next = null;   //指针域
-
-    //构造函数初始化
-    @SuppressWarnings(&quot;unused&quot;)
-    public Node(){}
-
-    public Node(Object data, Node next){
-        this.data = data;
-        this.next = next;
-    }
-
-    @Override
-    public String toString() {
-        return &quot;Node [data=&quot; + data + &quot;, next=&quot; +  next + &quot;]&quot;;
-    }
-}/*Node*/
-
-private Node top = null; //定义栈顶
-private int size = 0;    //定义栈节点数量
-
-//判断栈空
-public boolean isEmpty(){
-    return size == 0 ? true : false;
-}
-
-//压栈
-public boolean push(Object obj){
-    //更新头节点，让新节点指向原来的头节点
-    System.out.println(&quot;压栈成功:&quot; + obj + &quot;指向-&gt;&quot; + top);
-    top = new Node(obj, top); //压栈是将节点插入到栈顶之前。也就是更新头节点。改变指针指向
-    size ++; //栈长度++
-    return true;
-}
-
-//出栈
-public Object pop(){
-    if(isEmpty()){
-        System.out.println(&quot;对不起，目前是空栈，不能出栈&quot;);
-        return null;
-    }
-    Node temp = top;     //头节点引用
-    top = top.next;        //更新头节点
-    temp.next = null;     //释放引用,删除指针指向
-    size-- ;             //栈节点数量-1
-    return temp.data;   //出栈
-}
-
-//返回栈顶元素，但不弹出栈
-public Object peek(){
-    return this.top.data; //直接返回栈顶元素
-}
-
-//遍历栈并打印
-public void display(){
-    //从栈顶节点开始到栈底节点null遍历
-    while(top != null){
-        System.out.println(top.data);
-        top = top.next;
-    }
-}
-
-//返回元素在栈中的位置
-public int getIndex(Object obj){
-    int i = 0;
-    while(top != null){
-        if(peek().equals(obj)){
-            return i; 
-        }
-        top = top.next;
-        i++;
-    }
-    return -1;
-}
-
-//返回栈的长度
-public int getSize(){
-    return this.size;
-}
-
-public static void main(String[] args) {
-    LinkedStack stack = new LinkedStack();
-    for (int i = 0; i &lt; 10; i++) {
-        stack.push(i);
-    }
-//stack.display();
-    System.out.println(stack.getIndex(9));
- }
-
-}
+</li>
+<li><p><strong>总结</strong></p>
+</li>
+</ul>
+<blockquote>
+<p>1、Minor GC是发生在新生代中的垃圾收集，采用的是复制算法</p>
+<p>2、新生代中每次使用的空间不超过90% ，主要用来存放新生的对象。</p>
+<p>3、Minor GC每次收集后Eden区和一块Survivor区都被清空</p>
+</blockquote>
+<ul>
+<li><strong>年老代的GC</strong>  </li>
+</ul>
+<p>当年老代内存不足时，将执行Major GC，也叫 Full GC　</p>
+<p>可以使用-XX:+UseAdaptiveSizePolicy开关来控制是否采用动态控制策略，如果动态控制，则动态调整Java堆中各个区域的大小以及进入老年代的年龄。</p>
+<p>如果对象比较大（比如长字符串或大数组），Young空间不足，则大对象会直接分配到老年代上（大对象可能触发提前GC，应少用，更应避免使用短命的大对象）。用-XX:PretenureSizeThreshold来控制直接升入老年代的对象大小，大于这个值的对象会直接分配在老年代上。</p>
+<p>可能存在年老代对象引用新生代对象的情况，如果需要执行Young GC，则可能需要查询整个老年代以确定是否可以清理回收，这显然是低效的。解决的方法是，年老代中维护一个512 byte的块——”card table“，所有老年代对象引用新生代对象的记录都记录在这里。Young GC时，只要查这里即可，不用再去查全部老年代，因此性能大大提高。</p>
+<blockquote>
+<p>老年代用的算法是标记-整理算法，即：标记出仍然存活的对象（存在引用的），将所有存活的对象向一端移动，以保证内存的连续。</p>
+</blockquote>
+<blockquote>
+<p>在发生Minor GC时，虚拟机会检查每次晋升进入老年代的大小是否大于老年代的剩余空间大小，如果大于，则直接触发一次Full GC，否则，就查看是否设 置了-XX:+HandlePromotionFailure（允许担保失败），如果允许，则只会进行MinorGC，此时可以容忍内存分配失败；如果不 允许，则仍然进行Full GC（这代表着如果设置-XX:+Handle PromotionFailure，则触发MinorGC就会同时触发Full GC，哪怕老年代还有很多内存，所以，最好不要这样做）。</p>
+</blockquote>
+<ul>
+<li><strong>方法区的GC</strong></li>
+</ul>
+<p>永久代的回收有两种：常量池中的常量，无用的类信息，常量的回收很简单，没有引用了就可以被回收。对于无用的类进行回收，必须保证3点：</p>
+<blockquote>
+<p>  1、类的所有实例都已经被回收</p>
+<p>  2、加载类的ClassLoader已经被回收</p>
+<p>  3、类对象的Class对象没有被引用（即没有通过反射引用该类的地方）</p>
+</blockquote>
+<p>永久代的回收并不是必须的，可以通过参数来设置是否对类进行回收。</p>
+<blockquote>
+<pre><code>HotSpot提供
+-Xnoclassgc进行控制使用-verbose，-XX:+TraceClassLoading、
+-XX:+TraceClassUnLoading可以查看类加载和卸载信息
+-verbose、-XX:+TraceClassLoading可以在Product版HotSpot中使用；
+-XX:+TraceClassUnLoading需要fastdebug版HotSpot支持
 </code></pre></blockquote>
+<h1 id="4、JDK1-7Update14之后的HotSpot虚拟机垃圾回收器"><a href="#4、JDK1-7Update14之后的HotSpot虚拟机垃圾回收器" class="headerlink" title="4、JDK1.7Update14之后的HotSpot虚拟机垃圾回收器"></a>4、JDK1.7Update14之后的HotSpot虚拟机垃圾回收器</h1><p>HotSpot虚拟机垃圾收集器概览图，收集器工作的内存区域以及收集器之间的配合使用情况。如下图所示：<br><img src="https://i.imgur.com/rVzFIHh.png" alt=""></p>
+<h2 id="1-Serial收集器-串行GC"><a href="#1-Serial收集器-串行GC" class="headerlink" title="1.Serial收集器(串行GC)"></a>1.Serial收集器(串行GC)</h2><p>Serial是最基本，历史最悠久的收集器，在Jdk1.3以前是虚拟机唯一的新新生代收集器。</p>
+<p>它的特点：</p>
+<blockquote>
+<pre><code>1. 单线程收集器，它只会使用一个CUP或者说一条收集线程来完成垃圾收集
+2. Stop The World,当进行垃圾收集时必须暂停所有的工作线程，直到它收集结束
+3. 使用“复制”算法
+</code></pre></blockquote>
+<p>现状及优势：</p>
+<blockquote>
+<ol>
+<li>现在目前国止，它依然是虚拟机运行在Client模式下的默认新生代收集器</li>
+<li>相比其他单线程收集器简单而高效，针对单CPU环境来说，没有线程交互开销。</li>
+<li>对于用户桌面应用来说，新生代使用的内存不会太大，停顿时间完全可以控制在几十毫秒以内，完全能胜任。</li>
+</ol>
+</blockquote>
+<h2 id="2-ParNew收集器-并行GC"><a href="#2-ParNew收集器-并行GC" class="headerlink" title="2.ParNew收集器(并行GC)"></a>2.ParNew收集器(并行GC)</h2><p>ParNew是Serial收集器的多线程版本， 除了多线程的区别外，其他作为包括Serial收集器可用的所有控制参数、收集算法、Stop The World、回收策略等都与Serial完全一样。</p>
+<p>它的特点：</p>
+<blockquote>
+<pre><code>1. 是Serial收集器的多线程版本，
+2. 也是新生代收集器，
+3. 使用“复制”算法
+4. 它是许多运行在Server模式下的虚拟机中首选的新生代收集器，
+5. ParNew是能与CMS收集器配合工作的其中一个，另一个就是Serial收集器。
+6. ParNew在单CPU环境并不比Serial收集器更好，反而可能由于线程交互而使性能不如Serial
+7. ParNew默认开启的线程数与CPU数量相同。
+8. -XX:+UseParNewGC 添加该虚拟机参数后，虚拟机强制使用ParNew收集器。
+9. -XX:ParallelGCThreads参数来限制垃圾收集器的线程数。
+</code></pre></blockquote>
+<h2 id="3-Parallel-Scavenge收集器"><a href="#3-Parallel-Scavenge收集器" class="headerlink" title="3.Parallel Scavenge收集器"></a>3.Parallel Scavenge收集器</h2><p>它是一个新生代收集器，它使用复制算法，且是并行的多线程收集器。Parallel Scavenge收集器的目的是达到一个可控制的吞吐量（Throughput)。所谓吞吐量就是CPU用于运行用户代码的时间与CPU总消耗的时间的比值，即吞吐量=运行用户代码时间/（运行用户代码时间+垃圾收集时间）。虚拟机总共运行了100分钟，用于垃圾收集花了1分钟，那么吞吐量就是99%。</p>
+<p>它的特点：</p>
+<blockquote>
+<pre><code>1. 新生代收集器，
+2. 使用“复制”算法；
+3. 并行的多线程收集器；
+4. 关注点在于，可控制的吞吐量
+5. 提供两个参数实现吞吐量的控制，
+  -XX:MaxGCPauseMillis 控制最大垃圾收集停顿时间，允许设置大于0的毫秒数
+  -XX:GCTimeRatio 直接设置吞吐量大小。取值为大于0小于100的整数
+  -XX:+UseAdaptiveSizePolicy 让虚拟机根据系统情况动态调整新生代大小，
+  eden与&gt;Survivor比例、晋升老年代对象年龄等参数；若设置了此参数，用户只需要设置
+  最大堆大小（-Xmx）和&gt;MaxGCPauseMillis或XX:GCTimeRatio
+</code></pre></blockquote>
+<h2 id="4-Serial-Old收集器"><a href="#4-Serial-Old收集器" class="headerlink" title="4.Serial Old收集器"></a>4.Serial Old收集器</h2><p>Serial Old 是Serial收集器的老年代版本，它同样是单线程收集器，使用“标记——整理”算法。它主要意义在于给Client模式 下的虚拟机使用。若在Server模式 下，它主要还有两大用途：一种是在JDK1.5以及之前的版本 与Parallel Scavenge收集器搭配使用；另一种是作为CMS收集器的后备预案。</p>
+<p>它的特点：</p>
+<blockquote>
+<pre><code>1. 老年代收集器，Serial的老年代版本；
+2. 单线程收集器；
+3. 使用“标记——整理”算法；
+4. 可与Parallel Scavenge收集器搭配使用；
+5. Stop The World
+</code></pre></blockquote>
+<h2 id="5-Parallel-Old收集器"><a href="#5-Parallel-Old收集器" class="headerlink" title="5.Parallel Old收集器"></a>5.Parallel Old收集器</h2><p>Parallel Old是Parallel Scavenge收集器的老年代版本，使用多线程“标记——整理”算法，在JDK1.6中开始提供使用。Parallel Old出现之前，Parallel Scavenge只能与Serial Old配合使用，Serial Old单线程的特性导致老年代垃圾收集瓶颈所以Parallel Scavenge略显尴尬。在Parallel Old收集器出现以后，Parallel Scavenge的“吞吐量优先”收集器才变得名副其实。在注重吞吐量以及CPU资源敏感的场合，都可以优先考虑Parallel Scavenge +Parallel Old收集器组合。</p>
+<p>它的特性：</p>
+<blockquote>
+<pre><code>1. 老年代收集器
+2. 多线程
+3. 使用“标记——整理”算法
+4. Stop The World
+</code></pre></blockquote>
+<h2 id="6-CMS收集器"><a href="#6-CMS收集器" class="headerlink" title="6.CMS收集器"></a>6.CMS收集器</h2><p>CMS(Concurrent Mark Sweep)收集器是一种以获得最短回收停顿时间为目标的收集器。对于重视服务的响应速度，希望系统停顿时间最短，以给用记带来较好的体验的应用（互联网或B/S系统服务端），CMS非常符合这类应用需求。它基于“标记——清除”算法。</p>
+<p>收集过程分为4步：</p>
+<blockquote>
+<pre><code>1. 初始标记（Stop The Wold）,标记GC Root能直接关联到的对象，速度快
+2. 并发标记（与用户线程并行执行），GC Roots Tracing,标记与GC Root关联对象引用的对象
+3. 重新标记,（Stop The Wold），修正并发标记期间因用户程序继续动作而导致标记变动的
+部分对象的标记记录
+4. 并发清除（与用户线程并行），运行时间稍长，但由于与用户线程并发，所以影响不大。
+</code></pre></blockquote>
+<p>优点：</p>
+<blockquote>
+<pre><code>1. 并发收集；
+2. 低停顿。
+</code></pre></blockquote>
+<p>缺点：</p>
+<blockquote>
+<pre><code>1. CMS收集器对CPU资源非常敏感，CMS默认启动的回收线程数是（CPU数量+3）/4。
+2. CMS无法处理浮动垃圾，浮动垃圾就是收集过程中由于用户线程执行新产生的垃圾
+3. 会产生大量的空间碎片；也提供了参数设置，执行多少次垃圾收集后进行一次碎片合并整理
+ -XX:UseCMSCompactAtFullCollection 默认开启，在fullGC时开启内存碎片合并整理
+ -XX:CMSFullGCsBeforeCompaction 设置多少次fullGc后执行一次碎片合并整理
+</code></pre></blockquote>
+<h2 id="7-G1收集器"><a href="#7-G1收集器" class="headerlink" title="7.G1收集器"></a>7.G1收集器</h2><p>G1收集器是当今收集器技术发展的最前沿成果之一，它是一款面向服务端应用的垃圾收集器。HotSpot开发团队赋予化的使命是未来可以替换掉JDK1.5中发布的CMS收集器。</p>
+<p>与其他GC收集器相比，G1此具备如下特点：</p>
+<blockquote>
+<ol>
+<li>并行与并发，G1能充分复用CPU、多核环境下的硬件优势，使用多个CPU来缩短<br>Stop-The_World停顿的时间，部分其他收集器原需要停顿Java线程执行的GC<br>动作，G1收集器仍然可以通过并发的方式让Java程序继续执行。</li>
+<li>分代收集，当G1无需与其他收集器配合就能独立管理整个GC堆。但它采取的方式<br>与一般的收集器有所不同。</li>
+<li>空间整合，与CMS的“标记——清理”算法不同，G1从整体来看是基于“标记——整理”<br>算法的收集器，从局部上来看是基于“复制”算法实现的，但两种算法都意味着G1<br>动作期间不会产生内存空间碎片。</li>
+<li>可预测的停顿，这是G1相对于CMS的另一大优势，降低停顿时间是G1和CMS其同的<br>关注点，但G1除了追求低停顿外，还能建立可预测的停顿时间模型，能让使用者<br>明确指定在一个长度为M毫秒的时间片段内，消耗在垃圾收集上的时间不得超过N<br>毫秒，这几乎已经是实时Java的垃圾收集器的特征了。</li>
+</ol>
+</blockquote>
+<p>它的原理：</p>
+<blockquote>
+<pre><code> 它将整个java堆划分 为多个大小相等的独立区域（Region）
+ 虽然还保留有新生代和老年低的概念，但新生代和老年代不再是物理隔离的
+ 它们都是一部分Region（不需要连续）的集合。
+ G1收集器之所以能建立可预测的停顿时间模型
+ 是因为它可以有计划地避免在整个Java堆中进行全区域的垃圾收集。
+ G1跟踪各个Region里面的垃圾信积的价值大小
+（回收所获得的空间大小 以及回收所需时间的经验值）
+ 在后台维护一个优先列表， 每次根据允许的收集时间，优先回收价值了大的Region
+（这也是Garbage_first名称的由来）。
+ 这种使用Region划分内存空间以及有优先级的区域回收方式，
+ 保证了G1收集器在有限的时间内可以获得尽可能 高的收集效率。
+ 每个Region维护一个Remembered Set 来维护区域中引用对象的信息，
+ 这样避免GC是的全堆扫描。
+</code></pre></blockquote>
+<p>它的执行步骤：</p>
+<blockquote>
+<ol>
+<li>初始标记，仅仅是标记一下GC Roots能直接关联到的对象，运行很快，会Stop The World.</li>
+<li>并发标记，从GC Root开始对堆中的对象进行可达性分析，找出存活对象，耗时较长，但与用户线程同时运行，</li>
+<li>最终标记，则是为了修正在并发标记期间因用户程序继续运作而导致标记产生变动的那一部分标记记录，停顿用户线程。</li>
+<li>筛选回收，首先对各个Region的回收价值和成本进行排序，根据用户所期望的GC停顿时间来制定回收计划。这阶段会停顿用户线程，该阶段其实也可能用户线程并发执行，但因为只回收一部分Region，时间是用户控制的，所以停顿用户线程提高收集效率。</li>
+</ol>
+</blockquote>
+<p>在执行机制上JVM提供了串行GC(Serial MSC)、并行GC(Parallel MSC)和并发GC(CMS)。</p>
+<p>串行GC（Serial MSC）</p>
+<p>client模式下的默认GC方式，可通过-XX:+UseSerialGC强制指定。每次进行全部回收，进行Compact，非常耗费时间。</p>
+<p>并行GC（Parallel MSC）(吞吐量大，但是GC的时候响应很慢)</p>
+<p>server模式下的默认GC方式，也可用-XX:+UseParallelGC=强制指定。可以在选项后加等号来制定并行的线程数。</p>
+<p>并发GC（CMS）(响应比并行gc快很多，但是牺牲了一定的吞吐量)</p>
+<p>JVM GC组合方式：</p>
+<p><img src="https://i.imgur.com/RLJKVpN.png" alt=""></p>
 
           
         
@@ -627,7 +675,7 @@ public static void main(String[] args) {
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/15/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/17/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/15/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/15/">15</a><span class="page-number current">16</span><a class="page-number" href="/page/17/">17</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" href="/page/17/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -677,7 +725,7 @@ public static void main(String[] args) {
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">19</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -688,7 +736,7 @@ public static void main(String[] args) {
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -699,7 +747,7 @@ public static void main(String[] args) {
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

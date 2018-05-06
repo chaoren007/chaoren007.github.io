@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/12/11/RPC的架构基本流程-Dubbo详解/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/12/29/多线程的Synchronized和Volatitle/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/12/11/RPC的架构基本流程-Dubbo详解/" itemprop="url">RPC的架构基本流程-Dubbo详解</a></h1>
+                <a class="post-title-link" href="/2017/12/29/多线程的Synchronized和Volatitle/" itemprop="url">多线程的Synchronized和Volatitle</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-11T23:44:04+08:00">
-                2017-12-11
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-12-29T23:03:04+08:00">
+                2017-12-29
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Dubbo/" itemprop="url" rel="index">
-                    <span itemprop="name">Dubbo</span>
+                  <a href="/categories/关键字/" itemprop="url" rel="index">
+                    <span itemprop="name">关键字</span>
                   </a>
                 </span>
 
@@ -352,22 +352,159 @@
       
         
           
-            <p> 代码层面上的流程</p>
-<blockquote>
-<p>在开发程序过程中，我需要调用某个方法，那么这个方法一般在我的工程中完整存在。 </p>
+            <h1 id="synchronized的三种应用方式"><a href="#synchronized的三种应用方式" class="headerlink" title="synchronized的三种应用方式"></a>synchronized的三种应用方式</h1><pre><code>修饰实例方法，作用于当前实例加锁，进入同步代码前要获得当前实例
+的锁
+注意:每一个对应的实例对象都有独立的对象所
+
+修饰静态方法，作用于当前类对象加锁，进入同步代码前要获得当前类
+对象的锁。
+如果该类中的非静态方法对共享变量操作的话会引起线程不安全。
+即使加了对象锁也不能与类锁互斥。
+
+修饰代码块，指定加锁对象，对给定对象加锁，进入同步代码库前要获
+得给定对象的锁。
+参数为this、实例对象、或对应的Class对象实例，表示该对象获得对象锁。
+优点:比修饰方法更加细化了。
+</code></pre><blockquote>
+<p>Thread中，join（）方法的作用是进行中的线程等待调用该方法的线程完成后，才能继续用下运行。</p>
+<p>比如 ：主线程中创建新的线程，然后启动该线程执行Join方法，那么后面代码将等待新创建的线程执行完再执行后面的代码。</p>
 </blockquote>
+<p>在一个主线程中</p>
 <blockquote>
-<p>通过RPC框架调用某个方法时，通常调用的是本地的代理方法，然后由代理方法把方法名和参数通过传输协议(通常还有需要对传输的内容进行序列化和压缩，以接受方反序列化和适应带宽)，在服务提供方接收信息，调用方法，再用相同的方式将结果通过网络传输给服务消费者。</p>
-</blockquote>
-<p>通常RPC框架解决的问题:</p>
-<blockquote>
-<pre><code>1、传输效率
-2、容错机制
-3、跨语言性
-4、流量监控
+<pre><code>ThreadA.start();
+ThreadA.join();
+ThreadB.start();
+ThreadB.join();
+那么线程A和B不存在竞争关系,实现串行化
+即A线程先执行，B线程后执行。
 </code></pre></blockquote>
-<p>市面上常用的JavaRPC框架</p>
-<p>淘宝的HSF<br>阿里巴巴开源的Dubbo</p>
+<h1 id="synchronized底层原理"><a href="#synchronized底层原理" class="headerlink" title="synchronized底层原理"></a>synchronized底层原理</h1><p>JVM中对象在内存中布局分为三块区域:对象头、实例数据和对齐填充到8字节的整数倍。</p>
+<p>对象头存放Mark Word 和 Class Metadata Adress</p>
+<p><strong>Mark Word</strong> ：对象的hashCode、锁信息或分代年龄或GC标记等信息，指向monitor的指针，偏向锁线程ID等。<br><strong>Class Metadata Address</strong> ：类型指针指向对象的类元数据，JVM通过这个指针确定该对象是哪个类的实例。</p>
+<blockquote>
+<p>其中轻量级锁和偏向锁是Java 6 对 synchronized 锁进行优化后新增加的。</p>
+<p>重量级锁也就是通常说synchronized的对象锁，锁标识位为10，其中指针指向的是monitor对象（也称为管程或监视器锁）的起始地址。每个对象都存在着一个 monitor 与之关联，线程持有monitor进入锁定状态。</p>
+</blockquote>
+<blockquote>
+<p>ObjectMonitor中有两个队列，_WaitSet 和 _EntryList，用来保存<br>ObjectWaiter对象列表( 每个等待锁的线程都会被封装成<br>ObjectWaiter对象)，_owner指向持有ObjectMonitor对象的线程，当<br>多个线程同时访问一段同步代码时，首先会进入 _EntryList 集合，当<br>线程获取到对象的monitor 后进入 _Owner 区域并把monitor中的<br>owner变量设置为当前线程同时monitor中的计数器count加1，若线程调<br>用 wait() 方法，将释放当前持有的monitor，owner变量恢复为<br>null，count自减1，同时该线程进入 WaitSe t集合中等待被唤醒。若<br>当前线程执行完毕也将释放monitor(锁)并复位变量的值，以便其他线程<br>进入获取monitor(锁)。</p>
+</blockquote>
+<h2 id="syschronized修饰代码块底层实现原理"><a href="#syschronized修饰代码块底层实现原理" class="headerlink" title="syschronized修饰代码块底层实现原理"></a>syschronized修饰代码块底层实现原理</h2><blockquote>
+<p>从字节码中可知同步语句块的实现使用的是monitorenter 和 monitorexit 指令，其中monitorenter指令指向同步代码块的开始位置，monitorexit指令则指明同步代码块的结束位置，monitor 的进入计数器为 0，那线程可以成功取得 monitor，并将计数器值设置为 1，取锁成功。如果当前线程已经拥有 objectref 的 monitor 的持有权，那它可以重入这个 monitor (关于重入性稍后会分析)，重入时计数器的值也会加 1。倘若其他线程已经拥有 objectref 的 monitor 的所有权，那当前线程将被阻塞，直到正在执行线程执行完毕，即monitorexit指令被执行，执行线程将释放 monitor(锁)并设置计数器值为0 ，其他线程将有机会持有 monitor 。值得注意的是编译器将会确保无论方法通过何种方式完成，方法中调用过的每条 monitorenter 指令都有执行其对应 monitorexit 指令，而无论这个方法是正常结束还是异常结束。为了保证在方法异常完成时 monitorenter 和 monitorexit 指令依然可以正确配对执行，编译器会自动产生一个异常处理器，这个异常处理器声明可处理所有的异常，它的目的就是用来执行 monitorexit 指令。从字节码中也可以看出多了一个monitorexit指令，它就是异常结束时被执行的释放monitor 的指令。</p>
+</blockquote>
+<blockquote>
+<p>monitorenter与monitorexit这两个控制多线程同步的bytecode原语，是JVM依赖操作系统互斥(mutex)来实现的。</p>
+</blockquote>
+<h2 id="syschronized修饰方法底层实现原理"><a href="#syschronized修饰方法底层实现原理" class="headerlink" title="syschronized修饰方法底层实现原理"></a>syschronized修饰方法底层实现原理</h2><blockquote>
+<p>方法级的同步是隐式，即无需通过字节码指令来控制的，它实现在方法调用和返回操作之中。JVM可以从方法常量池中的方法表结构(method_info Structure) 中的 ACC_SYNCHRONIZED 访问标志区分一个方法是否同步方法。当方法调用时，调用指令将会 检查方法的 ACC_SYNCHRONIZED 访问标志是否被设置，如果设置了，执行线程将先持有monitor（虚拟机规范中用的是管程一词）， 然后再执行方法，最后再方法完成(无论是正常完成还是非正常完成)时释放monitor。在方法执行期间，执行线程持有了monitor，其他任何线程都无法再获得同一个monitor。如果一个同步方法执行期间抛 出了异常，并且在方法内部无法处理此异常，那这个同步方法所持有的monitor将在异常抛到同步方法之外时自动释放。</p>
+</blockquote>
+<h1 id="Java虚拟机对synchronized的优化"><a href="#Java虚拟机对synchronized的优化" class="headerlink" title="Java虚拟机对synchronized的优化"></a>Java虚拟机对synchronized的优化</h1><p>锁的状态总共有四种，无锁状态、偏向锁、轻量级锁和重量级锁。</p>
+<h2 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h2><blockquote>
+<p>   偏向锁的核心思想是，如果一个线程获得了锁，那么锁就进入偏向模<br>式，此时Mark Word 的结构也变为偏向锁结构，当这个线程再次请求锁时，无需再做任何同步操作，即获取锁的过程，这样就省去了大量有关锁申请的操作，从而也就提供程序的性能。</p>
+</blockquote>
+<pre><code>类如:使用 List&lt;Integer&gt; list = new Vector&lt;Interger&gt;(); 
+list.add() 
+Vector是一个线程安全的类，内部使用了锁机制。
+每次add都会进行锁请求。
+使用如下参数来设置偏向锁:
+-XX:+UseBiasedLocking -XX:BiasedLockingStartupDelay=0  
+后面的参数表示系统启动后几秒启动偏向锁，一半默认4秒，
+因为刚启动的时候数据的竞争比较激烈。
+</code></pre><h2 id="轻量级锁"><a href="#轻量级锁" class="headerlink" title="轻量级锁"></a>轻量级锁</h2><p>   轻量级锁（Lightweight Locking）本意是为了减少多线程进入互斥的几率，并不是要替代互斥。<br>   轻量级锁所适应的场景是线程交替执行同步块的场合，如果存在同一时间访问同一锁的场合，就会导致轻量级锁膨胀为重量级锁。</p>
+<h2 id="自旋锁"><a href="#自旋锁" class="headerlink" title="自旋锁"></a>自旋锁</h2><blockquote>
+<p>   当竞争存在时，因为轻量级锁尝试失败，之后有可能会直接升级成重量级锁动用操作系统层面的互斥。也有可能再尝试一下自旋锁。如果线程可以很快获得锁，那么可以不在OS层挂起线程，让线程做几个空操作（自旋），并且不停地尝试拿到这个锁（类似tryLock），当然循环的次数是有限制的，当循环次数达到以后，仍然升级成重量级锁。</p>
+</blockquote>
+<h2 id="锁消除"><a href="#锁消除" class="headerlink" title="锁消除"></a>锁消除</h2><blockquote>
+<p> 通过对运行上下文的扫描，去除不可能存在共享资源竞争的锁<br> 类如 StringBuffer 的实例连续调用 append 方法 </p>
+</blockquote>
+<h2 id="其他特性"><a href="#其他特性" class="headerlink" title="其他特性"></a>其他特性</h2><ul>
+<li><strong>可重入性</strong></li>
+</ul>
+<blockquote>
+<p>从互斥锁的设计上来说，当一个线程试图操作一个由其他线程持有的对象锁的临界资源时，将会处于阻塞状态，但当一个线程再次请求自己持有对象锁的临界资源时，这种情况属于重入锁，请求将会成功，在java中synchronized是基于原子性的内部锁机制，是可重入的，因此在一个线程调用synchronized方法的同时在其方法体内部调用该对象另一个synchronized方法，也就是说一个线程得到一个对象锁后再次请求该对象锁，是允许的，这就是synchronized的可重入性。</p>
+</blockquote>
+<ul>
+<li><strong>等待唤醒机制与synchronized</strong></li>
+</ul>
+<blockquote>
+<p>在使用wait/notify/notifyAll个方法时，必须处于synchronized代码块或者synchronized方法中，否则就会抛出IllegalMonitorStateException异常，这是因为调用这几个方法前必须拿到当前对象的监视器monitor对象。wait方法将会释放当前持有的监视器锁(monitor)，直到有线程调用notify/notifyAll方法后方能继续执行。</p>
+</blockquote>
+<h1 id="Volatile关键字"><a href="#Volatile关键字" class="headerlink" title="Volatile关键字"></a>Volatile关键字</h1><blockquote>
+<p>JVM虚拟机提供按照CPU的和操作系统的内存模型规定了主内存和每个线程的工作内存。</p>
+</blockquote>
+<blockquote>
+<p>在JVM底层volatile是采用“内存屏障”来实现的。</p>
+<p>JVM的8种原子操作</p>
+</blockquote>
+<blockquote>
+<ul>
+<li>lock   锁定主内存的变量，使其被某一线程独占</li>
+<li>unlock 取消锁定</li>
+<li>read   把一个主内存的变量传递到工作内存中，以便load</li>
+<li>load   将从主内存传递的值传递到工作内存的变量副本中</li>
+<li>store  将工作内存中变量副本传递到主内存中去，以便write</li>
+<li>write  将工作内存传递过来的值赋到主内存中变量</li>
+<li>use    将工作内存的值传递给执行引擎</li>
+<li>assign 将执行引擎的值传递到工作内存</li>
+</ul>
+</blockquote>
+<h2 id="Volatile的两种特性"><a href="#Volatile的两种特性" class="headerlink" title="Volatile的两种特性"></a>Volatile的两种特性</h2><p>1、保证了不同线程对这个变量进行操作时的可见性，即一个线程修改了某个变量的值，这新值对其他线程来说是立即可见的。保证可见性、不保证原子性。</p>
+<blockquote>
+<pre><code>boolean stop = true;
+   //线程1
+while(stop){
+  doSomething();
+}
+   //线程2
+ stop = false;
+</code></pre></blockquote>
+<blockquote>
+<p>线程1在运行的时候，会将stop变量的值拷贝一份放在自己的工作内存当中。那么当线程2更改了stop变量的值之后，但是还没来得及写入主存当中，线程2转去做其他事情了，那么线程1由于不知道线程2对stop变量的更改，因此还会一直循环下去。</p>
+<p>如果stop使用了volatile修饰，则一但执行了线程2的stop = false,会使得其他线程工作内存中缓存的stop失效。</p>
+</blockquote>
+<p>2、禁止进行指令的重排序</p>
+<pre><code>  //线程1
+context = loadContext(); //1
+init = true ;  //2
+  //线程2
+while(!init){
+
+}
+doSomeThing(context);
+</code></pre><blockquote>
+<p>在没有用volatile修饰时，不能保证1 、2 的执行先后顺序(因为在线程1中先执行1 、2 没有任何区别 ， 这是虚拟机的优化)。但是会导致线程2运行出错。<br>使用volatile修饰init时，就能够保证指令的执行顺序，并且使初始化的变量写入主内存中，对其他线程可见。</p>
+</blockquote>
+<h2 id="Volatile的实现机制"><a href="#Volatile的实现机制" class="headerlink" title="Volatile的实现机制"></a>Volatile的实现机制</h2><blockquote>
+<p>使用volatile修饰的变量在汇编的时候会多一个lock前缀指令，相当于一个内存屏障。<br>提供3个功能：</p>
+</blockquote>
+<blockquote>
+<p>  （1）它确保指令重排序时不会把其后面的指令排到内存屏障之前的位置，也不会把前面的指令排到内存屏障的后面；即在执行到内存屏障这句指令时，在它前面的操作已经全部完成；</p>
+<p>  （2）它会强制将对缓存的修改操作立即写入主内存；</p>
+<p>  （3）如果是写操作，它会导致其他CPU中对应的缓存行无效。</p>
+</blockquote>
+<h2 id="使用volatile关键字的场景"><a href="#使用volatile关键字的场景" class="headerlink" title="使用volatile关键字的场景"></a>使用volatile关键字的场景</h2><ul>
+<li><strong>状态标记量</strong></li>
+</ul>
+<p><img src="https://i.imgur.com/rCQ59BR.png" alt=""></p>
+<ul>
+<li><strong>double check（单例模式）</strong></li>
+</ul>
+<p><img src="https://i.imgur.com/IIjZ1rL.png" alt=""></p>
+<blockquote>
+<p>这里为什么要使用volatile修饰instance？主要在于instance = new Singleton()这句，这并非是一个原子操作，事实上在JVM中这句话大概做了下面3件事情:</p>
+<p>（1）给instance分配内存</p>
+<p>（2）调用Singleton的构造函数来初始化成员变量</p>
+<p>（3）将instance对象指向分配的内存空间（执行完这步instance就为非null了）。</p>
+<p>但是在JVM的即时编译器中存在指令重排序的优化。也就是说上面的第二步和第三步的顺序是不能保证的，最终的执行顺序可能是 1-2-3 也可能是 1-3-2。如果是后者，则在3执行完毕、2未执行之前，被线程二抢占了，这时instance已经是非null了（但却没有初始化），所以线程二会直接返回instance，然后使用，然后顺理成章地报错。</p>
+</blockquote>
+<h2 id="Volatile的使用优化"><a href="#Volatile的使用优化" class="headerlink" title="Volatile的使用优化"></a>Volatile的使用优化</h2><blockquote>
+<p>在使用Volatile变量时，用一种追加字节的方式来优化队列出队和入队的性能。追加字节能优化性能？这种方式看起来很神奇，但如果深入理解处理器架构就能理解其中的奥秘。让我们先来看看LinkedTransferQueue这个类，它使用一个内部类类型来定义队列的头队列（Head）和尾节点（tail），而这个内部类PaddedAtomicReference相对于父类AtomicReference只做了一件事情，就将共享变量追加到64字节。我们可以来计算下，一个对象的引用占4个字节，它追加了15个变量共占60个字节，再加上父类的Value变量，一共64个字节。</p>
+</blockquote>
+<p><img src="https://i.imgur.com/kgeAOpD.png" alt=""></p>
+<blockquote>
+<p>为什么追加64字节能够提高并发编程的效率呢？ 因为对于英特尔酷睿i7，酷睿， Atom和NetBurst， Core Solo和Pentium M处理器的L1，L2或L3缓存的高速缓存行是64个字节宽，不支持部分填充缓存行，这意味着如果队列的头节点和尾节点都不足64字节的话，处理器会将它们都读到同一个高速缓存行中，在多处理器下每个处理器都会缓存同样的头尾节点，当一个处理器试图修改头接点时会将整个缓存行锁定，那么在缓存一致性机制的作用下，会导致其他处理器不能访问自己高速缓存中的尾节点，而队列的入队和出队操作是需要不停修改头接点和尾节点，所以在多处理器的情况下将会严重影响到队列的入队和出队效率。Doug lea使用追加到64字节的方式来填满高速缓冲区的缓存行，避免头接点和尾节点加载到同一个缓存行，使得头尾节点在修改时不会互相锁定。</p>
+<p>那么是不是在使用Volatile变量时都应该追加到64字节呢？不是的。在两种场景下不应该使用这种方式。</p>
+<p>（1）缓存行非64字节宽的处理器，如P6系列和奔腾处理器，它们的L1和L2高速缓存行是32个字节宽。<br>（2）共享变量不会被频繁的写。因为使用追加字节的方式需要处理器读取更多的字节到高速缓冲区，这本身就会带来一定的性能消耗，共享变量如果不被频繁写的话，锁的几率也非常小，就没必要通过追加字节的方式来避免相互锁定。</p>
+</blockquote>
 
           
         
@@ -407,7 +544,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/10/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><span class="page-number current">11</span><a class="page-number" href="/page/12/">12</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" href="/page/12/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -457,7 +594,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">19</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -468,7 +605,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -479,7 +616,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

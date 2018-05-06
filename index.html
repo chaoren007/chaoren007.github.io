@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/04/08/悲观锁/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/05/06/ChIA-pet工具包/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/04/08/悲观锁/" itemprop="url">悲观锁</a></h1>
+                <a class="post-title-link" href="/2018/05/06/ChIA-pet工具包/" itemprop="url">ChIA-PET Tool</a></h1>
         
 
         <div class="post-meta">
@@ -290,8 +290,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-04-08T23:35:04+08:00">
-                2018-04-08
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2018-05-06T12:00:00+08:00">
+                2018-05-06
               </time>
             
 
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Mysql/" itemprop="url" rel="index">
-                    <span itemprop="name">Mysql</span>
+                  <a href="/categories/ChIA-PET-Tool/" itemprop="url" rel="index">
+                    <span itemprop="name">ChIA-PET Tool</span>
                   </a>
                 </span>
 
@@ -352,212 +352,103 @@
       
         
           
-            <p><strong>悲观锁</strong></p>
-<p>悲观锁，正如其名，它指的是对数据被外界（包括本系统当前的其他事务，以及来自外部系统的事务处理）修改持保守态度，因此，在整个数据处理过程中，将数据处于锁定状态。悲观锁的实现，往往依靠数据库提供的锁机制（也只有数据库层提供的锁机制才能真正保证数据访问的排他性，否则，即使在本系统中实现了加锁机制，也无法保证外部系统不会修改数据）。</p>
-<p><strong>使用场景举例</strong>：以MySQL InnoDB为例</p>
-<p>商品goods表中有一个字段status，status为1代表商品未被下单，status为2代表商品已经被下单，那么我们对某个商品下单时必须确保该商品status为1。假设商品的id为1。</p>
-<p><strong>1如果不采用锁，那么操作方法如下：</strong></p>
-<pre><code>//1.查询出商品信息
+            <h1 id="ChIA-PET-Tool"><a href="#ChIA-PET-Tool" class="headerlink" title="ChIA-PET Tool"></a>ChIA-PET Tool</h1><h2 id="介绍"><a href="#介绍" class="headerlink" title="介绍"></a>介绍</h2><p>与配对末端标记（<strong>CHI-PET</strong>）测序的染色质相互作用分析是一种全基因组高通量技术，用于检测与特定的感兴趣的蛋白相关的染色质相互作用（FulsBooet等，2009）。CHI-PET工具（Li等人，2010）是计算CHIA PET wet-lab实验室实验生成的下一代序列数据的计算包，</p>
+<blockquote>
+<p> 包含7个步骤： </p>
+</blockquote>
+<blockquote>
+<pre><code>1）链接器过滤
 
-select status from t_goods where id=1;
+2）将成对的末端读数映射到参考基因组
 
-//2.根据商品信息生成订单
+3）净化映射读数
 
-insert into t_orders (id,goods_id) values (null,1);
+4）将读数划分为不同类别
 
-//3.修改商品status为2
+5）峰值呼叫
 
-update t_goods set status=2;
-</code></pre><p>上面这种场景在高并发访问的情况下很可能会出现问题。</p>
-<p>前面已经提到，只有当goods status为1时才能对该商品下单，上面第一步操作中，查询出来的商品status为1。但是当我们执行第三步Update操作的时候，有可能出现其他人先一步对商品下单把goods status修改为2了，但是我们并不知道数据已经被修改了，这样就可能造成同一个商品被下单2次，使得数据不一致。所以说这种方式是不安全的。</p>
-<p><strong>2使用悲观锁来实现：</strong></p>
-<p>在上面的场景中，商品信息从查询出来到修改，中间有一个处理订单的过程，使用悲观锁的原理就是，当我们在查询出goods信息后就把当前的数据锁定，直到我们修改完毕后再解锁。那么在这个过程中，因为goods被锁定了，就不会出现有第三者来对其进行修改了。</p>
-<p>注：要使用悲观锁，我们必须关闭mysql数据库的自动提交属性，因为MySQL默认使用autocommit模式，也就是说，当你执行一个更新操作后，MySQL会立刻将结果进行提交。</p>
-<p>我们可以使用命令设置MySQL为非autocommit模式：</p>
-<pre><code>set autocommit=0;
+6）交互调用
 
-设置完autocommit后，我们就可以执行我们的正常业务了。具体如下：
+7）可视化结果
+</code></pre></blockquote>
+<p><strong>CHIA PET</strong>工具最初发表在2010版的《基因组生物学》杂志上。此后，该软件包及其修改被用于许多高知名度期刊的研究项目中。修改包括修改链接器过滤脚本，采用最新的映射工具（如BWA和BoTeY），生成数据的统计，并评估数据的质量。在这个更新的包中，我们演示了如何将最新的CHI-PET工具应用于公开的CHI-PET数据，并说明了细节和解释结果，以便于使用CHI-PET工具。</p>
+<h2 id="CHIA-PET工具框架"><a href="#CHIA-PET工具框架" class="headerlink" title="CHIA PET工具框架"></a>CHIA PET工具框架</h2><p>当前的<strong>CHI-PET工具</strong>是一个命令行程序，其执行需要一个终端程序。<strong>CHI-PET工具</strong>主要是用java。Shell脚本用于将CHI PET工具中的不同步骤粘合为单个管道。R脚本用于计算p值并生成图形。包可以下载<a href="https://github.com/guoliangli-hzau/chia-pet_tool/archive/master.zip，包括" target="_blank" rel="noopener">https://github.com/guoliangli-hzau/chia-pet_tool/archive/master.zip，包括</a> <strong>CHI-PET工具</strong>在java源代码，编译JAR文件，shell脚本，R脚本和一些示例文件。</p>
+<p>程序</p>
+<blockquote>
+<p><strong>LGL.jar</strong>      /内核程序用java</p>
+<p><strong>LGL</strong></p>
+<blockquote>
+<p><strong>src</strong></p>
+</blockquote>
+<blockquote>
+<blockquote>
+<p><strong>LGL</strong>  //——java源代码</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<p><strong>path.txt</strong>  //——用于编译源代码的必要的文件</p>
+</blockquote>
+</blockquote>
+<blockquote>
+<blockquote>
+<p><strong>source codes</strong></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<blockquote>
+<p><strong>hypergeometric.r</strong>   //——R超几何模型交互作用的统计意义评估</p>
+<p><strong>pois.r</strong> //——从Poisson分布模型中估计峰的统计意义</p>
+<p><strong>cutoffhistbinsize10bp.r</strong> //——评价自身结扎和结扎宠物之间的边界</p>
+<p><strong>peakHeader.txt</strong></p>
+<p><strong>hg19.chrmisiz.txt</strong> //——一个文件包含每个染色体的长度。</p>
+<p><strong>mm10.chromSize.txt</strong></p>
+<p><strong>ChIA-PETToolReport</strong> //——用于生成报表的空模板</p>
+<blockquote>
+<p><strong>Rscript_and_genome_data</strong>      &nbsp;&nbsp;&nbsp;//——生成报表的R脚本<br></p>
+<blockquote>
+<p><strong>ChIA-PET_Tool_Report.r</strong><br><br><strong>Plotting_functions.R</strong><br><br><strong>hg19_cytoBandIdeo.txt</strong><br><br><strong>mm10_cytoBandIdeo.txt</strong></p>
+</blockquote>
+</blockquote>
+</blockquote>
+<blockquote>
+<p><strong>linker_set_1.with-barcode-info.txt</strong>    &nbsp;&nbsp;&nbsp;// 链接器文件1</p>
+</blockquote>
+<blockquote>
+<p><strong>linker_set_2.with-barcode-info.txt</strong>  &nbsp;&nbsp;&nbsp;// 链接器文件2</p>
+</blockquote>
+<blockquote>
+<p><strong>MCF7.input.information.txt</strong>    &nbsp;&nbsp;&nbsp;//—— 链接文件过滤的输入文件和核心参数</p>
+</blockquote>
+<blockquote>
+<p><strong>run.MCF7.sh</strong>    &nbsp;&nbsp;&nbsp;// ——外壳脚本粘贴整个步骤</p>
+</blockquote>
+<blockquote>
+<p><strong>deletion.sh</strong>   &nbsp;&nbsp;&nbsp;// ——删除一些临时文件并移动文件以生成可视化报告到一个新文件夹</p>
+</blockquote>
+<p><strong>如果需要修改源代码，请使用以下命令打包文件。（将您的工作目录更改为：CHIAPETHOTION工具/MPLA/LGL/SRC/）</strong></p>
+<pre><code>shell mkdir ../classes javac -d ../classes @path.txt 
+cd ../classes/ jar -cvf LGL.jar LGL rm ../../LGL.jar 
+cp LGL.jar ../../
+</code></pre><h2 id="安装与下载"><a href="#安装与下载" class="headerlink" title="安装与下载"></a>安装与下载</h2><p> <strong>支持的软件</strong></p>
+<p><strong>ChIA-PET Tool是一个管道主要基于java</strong>（HTTP：/ / <a href="http://www.oracle。COM" target="_blank" rel="noopener">www.oracle。COM</a> / TechNetwork / java / JavaSE /下载/ jdk8-downloads-2133151。HTML）。同时，它还依赖于以下软件。</p>
+<p><strong>BWA</strong>（Hopp://Biop-BaW.SooCurfGe.NET/）用于将CHI-PET测序读数映射到参考基因组。BWA可以被其他映射工具取代，例如BoTey（<a href="http://SooSoFix.NET/Studio/BoTeigBio/Fields/BoTeY）。脚本和基因组索引中对应的映射工具应该为此修改。" target="_blank" rel="noopener">http://SooSoFix.NET/Studio/BoTeigBio/Fields/BoTeY）。脚本和基因组索引中对应的映射工具应该为此修改。</a></p>
+<p><strong>SAMtools</strong>（HTTP://SAMoToS.SuoSuroFur.NET/）用于将对齐输出从山姆格式转换为BAM格式。</p>
+<p><strong>BAToToice</strong>（HTTPS://BooToS.GoGoCooDe.COM/Fiels/BeaTooS.V2.170.TAR.Gz）需要将文件从BAM格式转换成BEPE格式。</p>
+<p><strong>R</strong>（HTTP://www-rj.jord.Org/）环境用于计算P值和R包XTABLE（HTTP://RANC.R项目）.Org/Web/PaaGeS/XTabLe/NeXX.HTML和<strong>RCircos</strong>（HTTP://RANK.R Pjut.Org/Web/PaaGeS/RCIRCOS/DIXX.HTML）用于生成用于可视化的图表。</p>
+<p>根据相应的指令安装每个软件包，测试每个软件的正确运行。</p>
+<h2 id="所需数据"><a href="#所需数据" class="headerlink" title="所需数据"></a>所需数据</h2><p>要运行CHI-PET工具，需要基因组序列、染色体大小和感兴趣基因组的细胞带数据。基因组指数需要预先构建BWA（如果BWA用于映射）。</p>
+<p>在我们的测试中，人类<strong>HG19参考基因组</strong>（FTP://HCSEC.EdU/GaldPosi/Hg19/BigZIP/ChrMFA.TAR.Gz），染色体大小（FTP://HgDeLoad .CSE.UcSC.EdU/GaldPase/Hg19/BigZIPs/Hg19.Chr.Siges）和 <strong>细胞带数据</strong>（HTTP:/HgDunLoop.So.UcSC.EdU/GaldPase/Hg19/Dabase/CybBdidioo.Tx.Gz）都是从UCSC下载的。鼠标数据也是这样。</p>
+<h2 id="示例数据"><a href="#示例数据" class="headerlink" title="示例数据"></a>示例数据</h2><p>在我们的测试中，我们使用了与人类乳腺癌细胞系MCF7和白血病细胞系K562（Li et al，2012）相关的已发表的CHI-PET数据，这可以从GEO与GSE33664的登录号中下载。</p>
+<h2 id="执行"><a href="#执行" class="headerlink" title="执行"></a>执行</h2><p>ChIA-PET Tool是一个易于使用的管道，您可以简单地运行它与一个命令行后，您所需的所有工具，数据和参数：</p>
+<p>Shell SunRun.MCF7.SH在运行管道之前，需要修改shell脚本中的变量，特别是对于所需的工具。参数和它们的含义的细节可以在UpWorkalal.PDF中找到。CHIA PET工具有不同的输出文件。结果文件的格式和结果的解释在ExuPurTurtual.PDF中，运行信息和汇总统计显示在CHIPEToToCURE生成的CHIA PET工具中。</p>
+<h2 id="参考文献"><a href="#参考文献" class="headerlink" title="参考文献"></a>参考文献</h2><ul>
+<li>Guoliang Li, Xiaoan Ruan, Raymond K. Auerbach, Michael Snyder, Yijun Ruan, et al. Extensive Promoter-Centered Chromatin Interactions Provide a Topological Basis for Transcription Regulation. Cell 148(1), 84-98 (2012) (Date Sets)</li>
+<li>Li G, Fullwood MJ, Xu H et al. ChIA-PET tool for comprehensive chromatin interaction analysis with paired-end tag sequencing. Genome Biology 11(2):R22 (2010)</li>
+<li>Fullwood, M. J. et al. An oestrogen-receptor-alpha-bound human chromatin interactome. Nature 462, 58-64 (2009)</li>
+</ul>
+<h2 id="联系方式"><a href="#联系方式" class="headerlink" title="联系方式"></a>联系方式</h2><p>If you have any problems or suggestions, you could send email to Dr. Guoliang Li (<a href="mailto:guoliang.li@mail.hzau.edu.cn" target="_blank" rel="noopener">guoliang.li@mail.hzau.edu.cn</a>).</p>
 
-//0.开始事务
-
-begin;/begin work;/start transaction; (三者选一就可以)
-
-//1.查询出商品信息
-
-select status from t_goods where id=1 for update;
-
-//2.根据商品信息生成订单
-
-insert into t_orders (id,goods_id) values (null,1);
-
-//3.修改商品status为2
-
-update t_goods set status=2;
-
-//4.提交事务
-
-commit;/commit work;
-</code></pre><p>注：上面的begin/commit为事务的开始和结束，因为在前一步我们关闭了mysql的autocommit，所以需要手动控制事务的提交，在这里就不细表了。</p>
-<p>上面的第一步我们执行了一次查询操作：select status from t_goods where id=1 for update;</p>
-<p>与普通查询不一样的是，我们使用了select…for update的方式，这样就通过数据库实现了悲观锁。此时在t_goods表中，id为1的 那条数据就被我们锁定了，其它的事务必须等本次事务提交之后才能执行。这样我们可以保证当前的数据不会被其它事务修改。</p>
-<p>注：需要注意的是，在事务中，只有SELECT … FOR UPDATE 或LOCK IN SHARE MODE 同一笔数据时会等待其它事务结束后才执行，一般SELECT … 则不受此影响。拿上面的实例来说，当我执行select status from t_goods where id=1 for update;后。我在另外的事务中如果再次执行select status from t_goods where id=1 for update;则第二个事务会一直等待第一个事务的提交，此时第二个查询处于阻塞的状态，但是如果我是在第二个事务中执行select status from t_goods where id=1;则能正常查询出数据，不会受第一个事务的影响。</p>
-<p><strong>补充：MySQL select…for update的Row Lock与Table Lock</strong></p>
-<p>上面我们提到，使用select…for update会把数据给锁住，不过我们需要注意一些锁的级别，MySQL InnoDB默认Row-Level Lock，所以只有「明确」地指定主键，MySQL 才会执行Row lock (只锁住被选取的数据) ，否则MySQL 将会执行Table Lock (将整个数据表单给锁住)。</p>
-<p><strong>举例说明：</strong></p>
-<p>数据库表t_goods，包括id,status,name三个字段，id为主键，数据库中记录如下;</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods;
-+—-+——–+——+
-| id | status | name |
-+—-+——–+——+
-| 1 | 1 | 道具 |
-| 2 | 1 | 装备 |
-+—-+——–+——+
-2 rows in set
-mysql&gt;
-</code></pre><p>注：为了测试数据库锁，我使用两个console来模拟不同的事务操作，分别用console1、console2来表示。 </p>
-<p><strong>例1: (明确指定主键，并且有此数据，row lock)</strong></p>
-<p>console1：查询出结果，但是把该条数据锁定了</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where id=1 for update;
-+—-+——–+——+
-| id | status | name |
-+—-+——–+——+
-| 1 | 1 | 道具 |
-+—-+——–+——+
-1 row in set
-mysql&gt;
-</code></pre><p>console2：查询被阻塞</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where id=1 for update;
-
-console2：如果console1长时间未提交，则会报错
-</code></pre><p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where id=1 for update;
-ERROR 1205 : Lock wait timeout exceeded; try restarting transaction
-</code></pre><p><strong>例2: (明确指定主键，若查无此数据，无lock)</strong></p>
-<p>console1：查询结果为空</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where id=3 for update;
-Empty set
-</code></pre><p>console2：查询结果为空，查询无阻塞，说明console1没有对数据执行锁定</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where id=3 for update;
-Empty set
-</code></pre><p><strong>例3: (无主键，table lock)</strong></p>
-<p>console1：查询name=道具 的数据，查询正常</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where name=’道具’ for update;
-+—-+——–+——+
-| id | status | name |
-+—-+——–+——+
-| 1 | 1 | 道具 |
-+—-+——–+——+
-1 row in set
-mysql&gt;
-</code></pre><p>console2：查询name=装备 的数据，查询阻塞，说明console1把表给锁住了</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where name=’装备’ for update;
-</code></pre><p>console2：若console1长时间未提交，则查询返回为空</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where name=’装备’ for update;
-Query OK, -1 rows affected
-</code></pre><p><strong>例4: (主键不明确，table lock)</strong></p>
-<p>console1：查询正常</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; begin;
-Query OK, 0 rows affected
-mysql&gt; select * from t_goods where id&gt;0 for update;
-+—-+——–+——+
-| id | status | name |
-+—-+——–+——+
-| 1 | 1 | 道具 |
-| 2 | 1 | 装备 |
-+—-+——–+——+
-2 rows in set
-mysql&gt;
-</code></pre><p>console2：查询被阻塞，说明console1把表给锁住了</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where id&gt;1 for update;
-</code></pre><p><strong>例5: (主键不明确，table lock)</strong></p>
-<p>console1：</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; begin;
-Query OK, 0 rows affected
-mysql&gt; select * from t_goods where id&lt;&gt;1 for update;
-+—-+——–+——+
-| id | status | name |
-+—-+——–+——+
-| 2 | 1 | 装备 |
-+—-+——–+——+
-1 row in set
-mysql&gt;
-</code></pre><p>console2：查询被阻塞，说明console1把表给锁住了</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where id&lt;&gt;2 for update;
-</code></pre><p>console1：提交事务</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; commit;
-Query OK, 0 rows affected
-</code></pre><p>console2：console1事务提交后，console2查询结果正常</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where id&lt;&gt;2 for update;
-+—-+——–+——+
-| id | status | name |
-+—-+——–+——+
-| 1 | 1 | 道具 |
-+—-+——–+——+
-1 row in set
-mysql&gt;
-</code></pre><p>以上就是关于数据库主键对MySQL锁级别的影响实例，需要注意的是，除了主键外，使用索引也会影响数据库的锁定级别。</p>
-<p>举例：</p>
-<p>我们修改t_goods表，给status字段创建一个索引</p>
-<p>修改id为2的数据的status为2，此时表中数据为：</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods;
-+—-+——–+——+
-| id | status | name |
-+—-+——–+——+
-| 1 | 1 | 道具 |
-| 2 | 2 | 装备 |
-+—-+——–+——+
-2 rows in set
-mysql&gt;
-</code></pre><p><strong>例6: (明确指定索引，并且有此数据，row lock)</strong></p>
-<p>console1：</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where status=1 for update;
-+—-+——–+——+
-| id | status | name |
-+—-+——–+——+
-| 1 | 1 | 道具 |
-+—-+——–+——+
-1 row in set
-mysql&gt;
-</code></pre><p>console2：查询status=1的数据时阻塞，超时后返回为空，说明数据被console1锁定了</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where status=1 for update;
-Query OK, -1 rows affected
-</code></pre><p>console2：查询status=2的数据，能正常查询，说明console1只锁住了行，未锁表</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where status=2 for update;
-+—-+——–+——+
-| id | status | name |
-+—-+——–+——+
-| 2 | 2 | 装备 |
-+—-+——–+——+
-1 row in set
-mysql&gt;
-</code></pre><p><strong>例7: (明确指定索引，若查无此数据，无lock)</strong></p>
-<p>console1：查询status=3的数据，返回空数据</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where status=3 for update;
-Empty set
-</code></pre><p>console2：查询status=3的数据，返回空数据</p>
-<p>Sql代码</p>
-<pre><code>mysql&gt; select * from t_goods where status=3 for update;
-Empty set
-</code></pre>
           
         
       
@@ -596,7 +487,7 @@ Empty set
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -646,7 +537,7 @@ Empty set
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">19</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -657,7 +548,7 @@ Empty set
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -668,7 +559,7 @@ Empty set
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>

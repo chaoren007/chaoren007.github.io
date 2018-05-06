@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/01/15/线程池/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/01/15/HashTable 、HashMap 、ConcurrentHashMap底层实现/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/01/15/线程池/" itemprop="url">线程池</a></h1>
+                <a class="post-title-link" href="/2018/01/15/HashTable 、HashMap 、ConcurrentHashMap底层实现/" itemprop="url">HashTable 、HashMap 、ConcurrentHashMap底层实现</a></h1>
         
 
         <div class="post-meta">
@@ -352,19 +352,77 @@
       
         
           
-            <blockquote>
-<p>Java通过Executors提供四种线程池，分别为：</p>
-<p>newCachedThreadPool创建一个可缓存线程池，如果线程池长度超过处理需要，可灵活回收空闲线程，若无可回收，则新建线程。</p>
+            <ul>
+<li><p>数组：连续空间，寻址迅速，增删需要大浮动移动。</p>
+</li>
+<li><p>链表：空间不连续，寻址困难，增删元素只需修改指针，所以查询慢、增删快。</p>
+</li>
+<li><p>哈希表：由数组和链表一起实现，数组寻址，链表增删。</p>
+</li>
+</ul>
+<h1 id="HashTable和HashMap"><a href="#HashTable和HashMap" class="headerlink" title="HashTable和HashMap"></a>HashTable和HashMap</h1><p>继承体系以及可供调用的公开方法<br>-</p>
+<ul>
+<li><p>HashTable<br><img src="https://i.imgur.com/9DBZ42K.png" alt=""></p>
+</li>
+<li><p>HashMap<br><img src="https://i.imgur.com/kCz4kzS.png" alt=""></p>
+</li>
+</ul>
+<h2 id="应用层面异同点"><a href="#应用层面异同点" class="headerlink" title="应用层面异同点"></a>应用层面异同点</h2><blockquote>
+<p>1、HashMap是非线程安全的，HashTable是线程安全的。</p>
 </blockquote>
 <blockquote>
-<p>newFixedThreadPool 创建一个定长线程池，可控制线程最大并发数，超出的线程会在队列中等待。</p>
+<p>2、HashMap的键和值都允许有null值存在，而HashTable则不行。</p>
 </blockquote>
 <blockquote>
-<p>newScheduledThreadPool 创建一个定长线程池，支持定时及周期性任务执行。</p>
+<p>3、因为线程安全的问题，HashMap效率比HashTable的要高</p>
 </blockquote>
+<h2 id="实现原理"><a href="#实现原理" class="headerlink" title="实现原理"></a>实现原理</h2><ul>
+<li><p>数据结构</p>
+<p>都是采用Hash表来存储键值对的。HashMap和HashTable都使用哈希表来存储键值对。都创建了一个继承自Map.Entry的私有的内部类Entry，每一个Entry对象表示存储在哈希表中的一个键值对。<br>Entry对象唯一表示一个键值对，有四个属性：</p>
+<p> -K key 键对象<br> -V value 值对象<br> -int hash 键对象的hash值<br> -Entry entry 指向链表中下一个Entry对象，可为null，表示当前<br> Entry对象在链表尾部</p>
+</li>
+</ul>
 <blockquote>
-<p>newSingleThreadExecutor 创建一个单线程化的线程池，它只会用唯一的工作线程来执行任务，保证所有任务按照指定顺序(FIFO, LIFO, 优先级)执行。</p>
+<p>HashTable默认的初始大小为11，之后每次扩充为原来的2n+1。<br>HashMap默认的初始化大小为16，之后每次扩充为原来的2倍。还有我没列<br>出代码的一点，就是如果在创建时给定了初始化大小，那么HashTable会<br>直接使用你给定的大小，而HashMap会将其扩充为2的幂次方大小。</p>
 </blockquote>
+<ul>
+<li><p>获取Hash桶的位置</p>
+<p>两种集合的加载因子都是0.75，这是在时间和空间的成本上折中。<br>HashTable中的数组(即Hash桶的个数)默认大小是11，每次扩充为原来的两倍加一(2n+1)。<br>HashMap中的数组默认大小为16，扩充为原来的两倍(2n)。</p>
+<p>如果给定的初始值，HashTable 直接使用该值，HashMap则自动扩充为2的n次方。</p>
+<p><img src="https://i.imgur.com/SNEzELY.png" alt=""></p>
+</li>
+</ul>
+<blockquote>
+<p>   HashTbale 是通过hash运算获取hash值，再与（&amp;）运算和取模运算（%）得到桶的位置，再与HashSeed异或（^）运算得到链表的位置。</p>
+<p>HashMap是在获取hashCode之后，做了一些位运算来减少hash冲突。<br>在取模的时候不再用除法，由于桶数量的特殊性，使用与（&amp;）运算代替了取模运算。</p>
+</blockquote>
+<h2 id="线程安全"><a href="#线程安全" class="headerlink" title="线程安全"></a>线程安全</h2><p><img src="https://i.imgur.com/TMqBs9x.png" alt=""></p>
+<p>可以看到，也比较简单，就是公开的方法比如get都使用了synchronized描述符。</p>
+<h1 id="ConcurrentHashMap实现原理"><a href="#ConcurrentHashMap实现原理" class="headerlink" title="ConcurrentHashMap实现原理"></a>ConcurrentHashMap实现原理</h1><blockquote>
+<p>一个ConcurrentHashMap由多个segment组成，每一个segment都包含了一个HashEntry数组的hashtable， 每一个segment包含了对自己的hashtable的操作，比如get，put，replace等操作，这些操作发生的时候，对自己的hashtable进行锁定。由于每一个segment写操作只锁定自己的hashtable，所以可能存在多个线程同时写的情况，性能无疑好于只有一个hashtable锁定的情况。</p>
+</blockquote>
+<ul>
+<li>总结与思考</li>
+</ul>
+<p>其实可以看出JDK1.8版本的ConcurrentHashMap的数据结构已经接近HashMap，相对而言，ConcurrentHashMap只是增加了同步的操作来控制并发，从JDK1.7版本的ReentrantLock+Segment+HashEntry，到JDK1.8版本中synchronized+CAS+HashEntry+红黑树,相对而言，总结如下思考：</p>
+<blockquote>
+<pre><code>JDK1.8的实现降低锁的粒度，JDK1.7版本锁的粒度是基于Segment的，包含多个HashEntry，而JDK1.8锁的粒度
+就是HashEntry（首节点）
+JDK1.8版本的数据结构变得更加简单，使得操作也更加清晰流畅，因为已经使用synchronized来进行同步，所以不
+需要分段锁的概念，也就不需要Segment这种数据结构了，由于粒度的降低，实现
+的复杂度也增加了
+JDK1.8使用红黑树来优化链表，基于长度很长的链表的遍历是一个很漫长的过程，而红黑树的
+遍历效率是很快的，代替一定阈值的链表，这样形成一个最佳拍档      
+JDK1.8为什么使用内置锁synchronized来代替重入锁ReentrantLock，我觉得有以下几
+
+因为粒度降低了，在相对而言的低粒度加锁方式，synchronized并不比ReentrantLock差，在
+粗粒度加锁中ReentrantLock可能通过Condition来控制各个低粒度的边界，更加的灵活，而在
+低粒度中，Condition的优势就没有了
+JVM的开发团队从来都没有放弃synchronized，而且基于JVM的synchronized优化空间更大，
+使用内嵌的关键字比使用API更加自然
+在大量的数据操作下，对于JVM的内存压力，基于API的ReentrantLock会开销更多的内存，虽
+然不是瓶颈，但是也是一个选择依据
+</code></pre></blockquote>
 
           
         
@@ -404,7 +462,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/18/">18</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/8/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/8/">8</a><span class="page-number current">9</span><a class="page-number" href="/page/10/">10</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" href="/page/10/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -454,7 +512,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">18</span>
+                  <span class="site-state-item-count">19</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -465,7 +523,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -476,7 +534,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">9</span>
+                  <span class="site-state-item-count">10</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
