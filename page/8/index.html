@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/02/22/手写生产消费者/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2018/02/22/Redis秒杀模型md/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2018/02/22/手写生产消费者/" itemprop="url">手写生产消费者</a></h1>
+                <a class="post-title-link" href="/2018/02/22/Redis秒杀模型md/" itemprop="url">Redis分布式锁秒杀</a></h1>
         
 
         <div class="post-meta">
@@ -352,25 +352,129 @@
       
         
           
-            <ul>
-<li>定义一个数据对象</li>
-</ul>
-<p><img src="https://i.imgur.com/Y6ZJw6C.png" alt=""><br><img src="https://i.imgur.com/rk0dTs6.png" alt=""></p>
-<ul>
-<li>定义一个生产者，实现Runnable接口。</li>
-</ul>
-<p><img src="https://i.imgur.com/nkhh3Ih.png" alt=""><br><img src="https://i.imgur.com/hnQmNZd.png" alt=""></p>
-<blockquote>
-<p>这里有几个注意点，一个就是对共享缓冲区的选择，作为生产者–消费者模型而言，共享缓冲区一定要具备阻塞的能力。所以这边选择的是阻塞队列。还有一个就是在并发编程的时候，如果需要使用类似i++这种id自增长的功能，需要使用Atomic包下的并发类。因为这些类是采用CAS设计的，不会产生并发问题。</p>
-</blockquote>
-<ul>
-<li>消费者</li>
-</ul>
-<p><img src="https://i.imgur.com/0bS9BJa.png" alt=""><br><img src="https://i.imgur.com/RzlH63j.png" alt=""></p>
-<ul>
-<li>main函数：</li>
-</ul>
-<p><img src="https://i.imgur.com/rNSF9Oj.png" alt=""><br><img src="https://i.imgur.com/WdHgl7s.png" alt=""></p>
+            <h1 id="实现分布式锁流程："><a href="#实现分布式锁流程：" class="headerlink" title="实现分布式锁流程："></a>实现分布式锁流程：</h1><blockquote>
+<pre><code>加锁：redis中的Key-Value存在
+释放锁: 删除key-value
+阻塞模式：若发现已经上锁，在特定的时间轮询
+异常情况：异步操作，加入锁超时机制，expire超时时间
+</code></pre></blockquote>
+<h2 id="注解定义"><a href="#注解定义" class="headerlink" title="注解定义"></a>注解定义</h2><blockquote>
+<pre><code>/** 锁在给定的等待时间内空闲，则获取锁成功 返回true， 否则
+返回false 
+ * @param subKey 
+ * @param timeout 如果timeout=0,取不到锁时,不等待,直接返回. 
+ * @param unit 
+ * @return 
+ */  
+public boolean tryLock(String subKey, 
+  long timeout, TimeUnit unit) {  
+  String key = LOCK_KEY + subKey;  
+  Jedis jedis = null;  
+  try {  
+    jedis = getConnection();  
+    if (jedis == null) {  
+    return Boolean.FALSE;  
+  }  
+  long nano = System.nanoTime();  
+  do{  
+    logger.debug(&quot;try lock key: &quot; + key);  
+    Long i = jedis.setnx(key, key);  
+    if (i == 1) {  
+    jedis.expire(key, EXPIRED_TIME);  
+    logger.debug(&quot;get lock, key: &quot; + key + &quot; ,
+    expire in &quot; + EXPIRED_TIME + &quot; seconds.&quot;);  
+    return Boolean.TRUE;  
+  } else { // 存在锁  
+    if (logger.isDebugEnabled()) {  
+      String desc = jedis.get(key);  
+      logger.debug(&quot;key: &quot; + key + &quot; locked by
+       another business：&quot; + desc);  
+    }  
+  }  
+  if (timeout == 0) { //取不到锁时,不等待,直接返回.  
+    break;  
+  }  
+  Thread.sleep(200);  
+  }while ((System.nanoTime() - nano) &lt; 
+   unit.toNanos(timeout));//取不到锁时等待,直到timeout  
+   return Boolean.FALSE;  
+  } catch (JedisConnectionException je) {  
+     logger.error(je.getMessage(), je);  
+     returnBorkenConnection(jedis);  
+  } catch (Exception e) {  
+     logger.error(e.getMessage(), e);  
+  } finally {  
+     returnConnection(jedis);  
+  }  
+ return Boolean.FALSE;  
+}  
+
+
+/** 
+ * 如果锁空闲立即返回   获取失败 一直等待 
+ * @param subKey 
+ */  
+public boolean lock(String subKey) {  
+  String key = LOCK_KEY + subKey;  
+  Jedis jedis = null;  
+  boolean isLock = false;  
+  try {  
+    jedis = getConnection();  
+    if (jedis == null) {  
+    return isLock;  
+  }  
+  while (true) {  
+   logger.debug(&quot;lock key: &quot; + key);  
+   Long i = jedis.setnx(key, key);  
+    if (i == 1) {  
+     jedis.expire(key, EXPIRED_TIME);  
+     logger.debug(&quot;get lock, key: &quot; + key + &quot; ,
+      expire in &quot; + EXPIRED_TIME + &quot; seconds.&quot;);  
+     isLock = true;  
+   } else {  
+    if (logger.isDebugEnabled()) {  
+      String desc = jedis.get(key);  
+      logger.debug(&quot;key: &quot; + key + &quot; locked by
+       another business：&quot; + desc);  
+    }  
+   isLock = false;  
+  }  
+ Thread.sleep(500);  
+  }  
+  } catch (JedisConnectionException je) {  
+    logger.error(je.getMessage(), je);  
+    returnBorkenConnection(jedis);  
+  } catch (Exception e) {  
+    logger.error(e.getMessage(), e);  
+  } finally {  
+     returnConnection(jedis);  
+  }  
+    return isLock;  
+ }  
+/** 
+ * 释放锁 
+ * @param subKey 
+ */  
+public void unLock(String subKey) {  
+  String key = LOCK_KEY + subKey;  
+  Jedis jedis = null;  
+  try {  
+    jedis = getConnection();  
+     if (jedis == null) {  
+     return;  
+  }  
+  jedis.del(key);  
+  logger.debug(&quot;release lock, keys :&quot; + key);  
+  } catch (JedisConnectionException je) {  
+     logger.error(je.getMessage(), je);  
+     returnBorkenConnection(jedis);  
+  } catch (Exception e) {  
+     logger.error(e.getMessage(), e);  
+  } finally {  
+     returnConnection(jedis);  
+  }  
+}  
+</code></pre></blockquote>
 
           
         
