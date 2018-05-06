@@ -87,7 +87,7 @@
 <meta property="og:site_name" content="LiquorSea的个人博客">
 <meta property="og:description" content="ChIA-PET Tool介绍与配对末端标记（CHI-PET）测序的染色质相互作用分析是一种全基因组高通量技术，用于检测与特定的感兴趣的蛋白相关的染色质相互作用（FulsBooet等，2009）。CHI-PET工具（Li等人，2010）是计算CHIA PET wet-lab实验室实验生成的下一代序列数据的计算包，   包含7个步骤：    1）链接器过滤  2）将成对的末端读数映射到参考基因组">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2018-05-06T04:47:19.193Z">
+<meta property="og:updated_time" content="2018-05-06T05:01:40.081Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="ChIA-PET Tool">
 <meta name="twitter:description" content="ChIA-PET Tool介绍与配对末端标记（CHI-PET）测序的染色质相互作用分析是一种全基因组高通量技术，用于检测与特定的感兴趣的蛋白相关的染色质相互作用（FulsBooet等，2009）。CHI-PET工具（Li等人，2010）是计算CHIA PET wet-lab实验室实验生成的下一代序列数据的计算包，   包含7个步骤：    1）链接器过滤  2）将成对的末端读数映射到参考基因组">
@@ -435,13 +435,13 @@ cp LGL.jar ../../
 <p><strong>BWA</strong>（<a href="http://bio-bwa.sourceforge.net/" title="http://bio-bwa.sourceforge.net/" target="_blank" rel="noopener">http://bio-bwa.sourceforge.net/</a>）用于将CHI-PET测序读数映射到参考基因组。BWA可以被其他映射工具取代，例如BoTey（<a href="http://sourceforge.net/projects/bowtie-bio/files/bowtie" title="http://sourceforge.net/projects/bowtie-bio/files/bowtie" target="_blank" rel="noopener">http://sourceforge.net/projects/bowtie-bio/files/bowtie</a>）。脚本和基因组索引中对应的映射工具应该为此修改。</p>
 <p><strong>SAMtools</strong>（<a href="http://samtools.sourceforge.net/" title="http://samtools.sourceforge.net/" target="_blank" rel="noopener">http://samtools.sourceforge.net/</a>）用于将对齐输出从山姆格式转换为BAM格式。</p>
 <p><strong>BAToToice</strong>（<a href="https://bedtools.googlecode.com/files/BEDTools.v2.17.0.tar.gz" title="https://bedtools.googlecode.com/files/BEDTools.v2.17.0.tar.gz" target="_blank" rel="noopener">https://bedtools.googlecode.com/files/BEDTools.v2.17.0.tar.gz</a>）需要将文件从BAM格式转换成BEPE格式。</p>
-<p><strong>R</strong>（<a href="http://www.r-project.org/" title="http://www.r-project.org/" target="_blank" rel="noopener">http://www.r-project.org/</a>）环境用于计算P值和R packages xtable（<a href="http://cran.r-project.org/web/packages/xtable/index.html" title="http://cran.r-project.org/web/packages/xtable/index.html" target="_blank" rel="noopener">http://cran.r-project.org/web/packages/xtable/index.html</a></p>
+<p><strong>R</strong>（<a href="http://www.r-project.org/" title="http://www.r-project.org/" target="_blank" rel="noopener">http://www.r-project.org/</a>）环境用于计算P值和R packages xtable（<a href="http://cran.r-project.org/web/packages/xtable/index.html" title="http://cran.r-project.org/web/packages/xtable/index.html" target="_blank" rel="noopener">http://cran.r-project.org/web/packages/xtable/index.html</a>)</p>
 <p><strong>RCircos</strong>（<a href="http://cran.r-project.org/web/packages/RCircos/index.html" title="http://cran.r-project.org/web/packages/RCircos/index.html" target="_blank" rel="noopener">http://cran.r-project.org/web/packages/RCircos/index.html</a>）用于生成用于可视化的图表。</p>
 <p>根据相应的指令安装每个软件包，测试每个软件的正确运行。</p>
 <h2 id="所需数据"><a href="#所需数据" class="headerlink" title="所需数据"></a>所需数据</h2><p>要运行CHI-PET工具，需要基因组序列、染色体大小和感兴趣基因组的细胞带数据。基因组指数需要预先构建BWA（如果BWA用于映射）。</p>
 <p>在我们的测试中</p>
 <ul>
-<li>人类HG19参考基因组（<a href="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz" title="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz" target="_blank" rel="noopener">ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz</a></li>
+<li>人类HG19参考基因组（<a href="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz" title="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz" target="_blank" rel="noopener">ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/chromFa.tar.gz</a>)</li>
 </ul>
 <ul>
 <li><p>染色体大小(<a href="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes" title="ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes" target="_blank" rel="noopener">ftp://hgdownload.cse.ucsc.edu/goldenPath/hg19/bigZips/hg19.chrom.sizes</a>）</p>
