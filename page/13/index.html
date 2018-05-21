@@ -259,7 +259,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/11/06/基本概念/">
+    <link itemprop="mainEntityOfPage" href="http://chaoren007.github.io/2017/11/06/Resid面试题点/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="阿超">
@@ -278,7 +278,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/11/06/基本概念/" itemprop="url">基本概念</a></h1>
+                <a class="post-title-link" href="/2017/11/06/Resid面试题点/" itemprop="url">Redis常见面试问题</a></h1>
         
 
         <div class="post-meta">
@@ -313,8 +313,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/学习总结/" itemprop="url" rel="index">
-                    <span itemprop="name">学习总结</span>
+                  <a href="/categories/Redis/" itemprop="url" rel="index">
+                    <span itemprop="name">Redis</span>
                   </a>
                 </span>
 
@@ -352,13 +352,59 @@
       
         
           
-            <h1 id="网络七层"><a href="#网络七层" class="headerlink" title="网络七层 :"></a>网络七层 :</h1><p><img src="https://i.imgur.com/TmJaw3h.png" alt=""></p>
-<p>socket最初是为了解决同一电脑下进程间的通讯。基本上也是封装了tcp/ip协议。</p>
-<h1 id="远程服务调用流程"><a href="#远程服务调用流程" class="headerlink" title="远程服务调用流程"></a>远程服务调用流程</h1><p>1、客户端发起接口调用<br>2、服务中间件进行路由选址:找到具体调用接口的实现地址<br>3、客户端将请求信息进行编码<br>4、建立与服务段的通讯(不是调度中心，而是客户端与服务段的直连接)<br>5、服务段将接收到的信息进行反编码(反序列化)<br>6、根据调用信息找到服务端接口的实现类<br>7、将执行结果反馈给客户端</p>
+            <h2 id="redis特性-，-以及和其他内存数据库的区别？"><a href="#redis特性-，-以及和其他内存数据库的区别？" class="headerlink" title="redis特性 ， 以及和其他内存数据库的区别？"></a>redis特性 ， 以及和其他内存数据库的区别？</h2><p>与Memcached相比</p>
 <ul>
-<li>核心技术：<br>-<br>Java多线程<br>JVM<br>网络通讯NIO<br>动态代理<br>反射<br>路由节点管理(Zookeeper)</li>
+<li><p>redis本身是开源的内存key value 存储服务器。其中键值不仅仅可以是字符串，还可以是hash(散列)、set(集合)、zset(有序集合)、list(列表)，一起共五种数据结构。</p>
+</li>
+<li><p>Redis支持数据备份，即Master-slave模式的数据备份。通过哨兵的心跳检测，超过半数节点认为某节点挂掉了，那么该节点就挂掉了。</p>
+</li>
+<li><p>Redis支持两种持久化方案，RDB模式和AOF模式 </p>
+<ol>
+<li><p>Rdb：快照形式，定期把内存中当前时刻的数据保存到磁盘。Redis默认支持的持久化方案。</p>
+</li>
+<li><p>aof形式：append only file。把所有对redis数据库操作的命令，增删改操作的命令。保存到文件中。数据库恢复时把所有的命令执行一遍即可。</p>
+</li>
+</ol>
+</li>
 </ul>
+<h2 id="redis-cluste集群架构"><a href="#redis-cluste集群架构" class="headerlink" title="redis-cluste集群架构"></a>redis-cluste集群架构</h2><ul>
+<li>架构细节:</li>
+</ul>
+<pre><code>(1)所有的redis节点彼此互联(PING-PONG机制),内部使用二进制协议优化传输速度和带宽。
 
+
+(2)节点的fail是通过集群中超过半数的节点检测失效时才生效。
+
+
+(3)客户端与redis节点直连,不需要中间proxy层.客户端不需要连接集群所有节点,连接集群中任何一个可用节点即可。
+
+
+(4)redis-cluster把所有的物理节点映射到[0-16383]slot上,cluster 负责维护node&lt;-&gt;slot&lt;-&gt;value。
+</code></pre><p>Redis 集群中内置了 16384 个哈希槽，当需要在 Redis 集群中放置一个 key-value 时，redis 先对 key 使用 crc16 算法算出一个结果，然后把结果对 16384 求余数，这样每个 key 都会对应一个编号在 0-16383 之间的哈希槽，redis 会根据节点数量大致均等的将哈希槽映射到不同的节点。</p>
+<h2 id="Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？"><a href="#Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？" class="headerlink" title="Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？"></a>Redis如何实现缓存穿透、缓存雪崩？如何使用redis实现分布式锁？</h2><ul>
+<li><p>缓存穿透</p>
+<p>  （1）缓存穿透是指用户查询数据，在数据库没有，自然在缓存中也不会有。这样就导致用户在查询redis中查不到又去数据库再查询一遍。对于重复这样的请求就使得缓存失去意义。</p>
+</li>
+</ul>
+<pre><code>解决方案1：如果查询返回的数据为空（不管是数据不存在还是系统故障），我们仍然对这个空结果进行缓存默认值。第二次到缓存中就能去到值了，而不用直接查询数据库。
+
+解决方案2：使用布隆过滤器，对所有可能查询的参数以hash形式存储到足够大的bitmap中，一定不存的数据会被bitmap拦截掉，从而避免了对底层数据库系统的查询压力。
+</code></pre><ul>
+<li><p>缓存雪崩</p>
+<p>  （1）缓存雪崩是由于原有的缓存失效，新缓存未到。所有的请求都取查询数据库，而对数据库CPU和内存造成巨大的压力。严重的会造成数据库宕机。从而造成一系列连锁反应。</p>
+<p>  （2）解决方案1:给每一个缓存添加相应的缓存标记，用来记录缓存是否失效，如果缓存标记失效，则更新数据缓存。</p>
+</li>
+<li><p>使用redis实现分布式锁</p>
+<p>  加锁的场景，秒杀，全局递增ID，等等。Redis为单<br>  进程单线曾模式，采用队列模式将并发访问编程串行访问。且多客户端对Redis的连接并不存在竞争关系。其次Redis提供一些命令，如setnx,getset可以方便实现分布式锁机制。</p>
+<p>  redis实现分布式锁的算法，Redlock。</p>
+</li>
+</ul>
+<pre><code>1、第一次请求锁获取系统时间
+
+2、请求耗时是否超时，超时则结束在该master节点的锁请求。未超时则继续循环请求。
+
+3、判断是否上锁成功，未成功则睡眠后再次请求。     
+</code></pre><h2 id="Redis内存策略"><a href="#Redis内存策略" class="headerlink" title="Redis内存策略"></a>Redis内存策略</h2>
           
         
       
@@ -397,7 +443,7 @@
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/12/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/19/">19</a><a class="extend next" rel="next" href="/page/14/"><i class="fa fa-angle-right"></i></a>
+    <a class="extend prev" rel="prev" href="/page/12/"><i class="fa fa-angle-left"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/12/">12</a><span class="page-number current">13</span><a class="page-number" href="/page/14/">14</a><span class="space">&hellip;</span><a class="page-number" href="/page/20/">20</a><a class="extend next" rel="next" href="/page/14/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -447,7 +493,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">19</span>
+                  <span class="site-state-item-count">20</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -458,7 +504,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -469,7 +515,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-count">11</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
